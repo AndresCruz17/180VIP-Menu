@@ -1,26 +1,178 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-outfit: "Segoe UI", Roboto, sans-serif;
+  --font-sans: "Segoe UI", Roboto, sans-serif;
+  --bg-space: #06050a;
+  --bg-card: rgba(22, 19, 36, 0.65);
+  --bg-card-hover: rgba(32, 27, 54, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-highlight: rgba(255, 255, 255, 0.18);
+  
+  --neon-magenta: #ff1b7a;
+  --neon-pink-glow: rgba(255, 27, 122, 0.35);
+  --neon-cyan: #00e5ff;
+  --neon-cyan-glow: rgba(0, 229, 255, 0.35);
+  --neon-green: #39ff14;
+  --neon-green-glow: rgba(57, 255, 20, 0.35);
+  --neon-purple: #9d4edd;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-space);
+  color: #ffffff;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+/* Ambient glow backgrounds */
+.ambient-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.ambient-glow::before {
+  content: "";
+  position: absolute;
+  top: -15%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(255, 27, 122, 0.18) 0%, rgba(157, 78, 221, 0.1) 50%, transparent 70%);
+  filter: blur(50px);
+  border-radius: 50%;
+}
+
+.ambient-glow::after {
+  content: "";
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 229, 255, 0.12) 0%, rgba(124, 58, 237, 0.08) 50%, transparent 70%);
+  filter: blur(50px);
+  border-radius: 50%;
+}
+
+/* Liquid Glass Cards */
+.liquid-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.02) 100%);
+  background-color: var(--bg-card);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--border-glass);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.liquid-card:hover {
+  border-color: var(--border-glass-highlight);
+  background-color: var(--bg-card-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45), inset 0 1px 2px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* Neon utilities */
+.text-neon-pink {
+  color: #ff1b7a;
+  text-shadow: 0 0 12px rgba(255, 27, 122, 0.5);
+}
+
+.text-neon-cyan {
+  color: #00e5ff;
+  text-shadow: 0 0 12px rgba(0, 229, 255, 0.5);
+}
+
+.text-neon-green {
+  color: #39ff14;
+  text-shadow: 0 0 12px rgba(57, 255, 20, 0.5);
+}
+
+.glow-magenta-btn {
+  background: linear-gradient(135deg, #ff1b7a, #d81165);
+  box-shadow: 0 0 20px rgba(255, 27, 122, 0.45);
+  transition: all 0.2s ease;
+}
+
+.glow-magenta-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 28px rgba(255, 27, 122, 0.7);
+}
+
+.glow-cyan-btn {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(0, 229, 255, 0.05));
+  border: 1px solid rgba(0, 229, 255, 0.4);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.25);
+}
+
+/* Category Pills */
+.category-pill {
+  padding: 0.5rem 1.1rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.category-pill-inactive {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.category-pill-inactive:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.category-pill-active {
+  background: #ff1b7a;
+  border: 1px solid #ff4093;
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(255, 27, 122, 0.45);
+}
+
+.admin-input {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.625rem 1rem;
+  color: #ffffff;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-input:focus {
+  border-color: #ff1b7a;
+}
+
+.admin-input::placeholder {
+  color: rgb(82, 82, 91);
+}
+
+/* Hide scrollbars */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
