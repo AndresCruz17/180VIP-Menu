@@ -1,9 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Edit2, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Calendar, Edit2, Loader2, Plus, Trash2, X, AlertTriangle, Copy, Check } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   deleteStorageFiles,
@@ -42,6 +42,9 @@ export default function AdminEventosPage() {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [dbError, setDbError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     tag: "EVENTO ESPECIAL",
@@ -61,12 +64,28 @@ export default function AdminEventosPage() {
 
   const fetchEvents = async () => {
     setFetching(true);
-    const { data } = await supabase
-      .from("events")
-      .select("id, title, tag, event_date, time, artist, description, image_url, is_active")
-      .order("event_date", { ascending: true });
-    setEvents((data as EventItem[]) || []);
-    setFetching(false);
+    setDbError(null);
+    try {
+      const { data, error } = await supabase
+        .from("events")
+        .select("id, title, tag, event_date, time, artist, description, image_url, is_active")
+        .order("event_date", { ascending: true });
+
+      if (error) {
+        if (error.code === "PGRST205" || error.message?.includes("events")) {
+          setDbError("missing_table");
+        } else {
+          setDbError(error.message);
+        }
+      } else {
+        setEvents((data as EventItem[]) || []);
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Error desconocido";
+      setDbError(msg);
+    } finally {
+      setFetching(false);
+    }
   };
 
   useEffect(() => { fetchEvents(); }, []);
@@ -91,12 +110,16 @@ export default function AdminEventosPage() {
     const file = e.target.files?.[0];
     if (!file) return;
     const vResult = validateImageFile(file);
-    if (!vResult.valid) { alert(vResult.error || "Archivo invalido"); return; }
+    if (!vResult.valid) { alert(vResult.error || "Archivo inválido"); return; }
     setImageFile(file);
   };
 
   const handleToggleActive = async (ev: EventItem) => {
-    await supabase.from("events").update({ is_active: !ev.is_active }).eq("id", ev.id);
+    const { error } = await supabase.from("events").update({ is_active: !ev.is_active }).eq("id", ev.id);
+    if (error) {
+      alert("Error al cambiar estado: " + error.message);
+      return;
+    }
     await fetchEvents();
   };
 
@@ -107,7 +130,6 @@ export default function AdminEventosPage() {
     try {
       let imageUrl: string | null = editingEvent?.image_url ?? null;
       if (imageFile) {
-        const slug = formData.title.toLowerCase().replace(/\s+/g, "-").slice(0, 40);
         const uploadResult = await uploadOptimizedImage(imageFile, "events");
         imageUrl = uploadResult.publicUrl;
         if (editingEvent?.image_url) await deleteStorageFiles(supabase, [editingEvent.image_url], "drinks");
@@ -132,14 +154,18 @@ export default function AdminEventosPage() {
       await fetchEvents();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error inesperado.";
-      alert("Error al guardar: " + message);
+      if (message.includes("schema cache") || message.includes("PGRST205") || message.includes("events")) {
+        alert("Falta crear la tabla en Supabase. Por favor ejecuta el script 'supabase/add_events_table.sql' en el SQL Editor de Supabase.");
+      } else {
+        alert("Error al guardar: " + message);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (ev: EventItem) => {
-    if (!window.confirm("Eliminar el evento: " + ev.title + "?")) return;
+    if (!window.confirm("¿Eliminar el evento: " + ev.title + "?")) return;
     const { error } = await supabase.from("events").delete().eq("id", ev.id);
     if (error) { alert("Error: " + error.message); return; }
     if (ev.image_url) await deleteStorageFiles(supabase, [ev.image_url], "drinks");
@@ -147,7 +173,26 @@ export default function AdminEventosPage() {
     await fetchEvents();
   };
 
-  const today = new Date().toISOString().split("T")[0];
+  const copySqlScript = () => {
+    const sql = `create table if not exists public.events (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  tag text not null default 'EVENTO ESPECIAL',
+  event_date date not null,
+  time text not null default '10:00 PM',
+  artist text,
+  description text,
+  image_url text,
+  is_active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+alter table public.events enable row level security;
+create policy "events_public_read" on public.events for select to public using (is_active = true or exists (select 1 from public.admin_users where user_id = (select auth.uid())));
+create policy "events_admin_all" on public.events for all to authenticated using (exists (select 1 from public.admin_users where user_id = (select auth.uid()))) with check (exists (select 1 from public.admin_users where user_id = (select auth.uid())));`;
+    navigator.clipboard.writeText(sql);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
 
   return (
     <div className="flex flex-1 flex-col pt-4 pb-10 w-full max-w-lg mx-auto px-4 sm:px-6">
@@ -158,28 +203,61 @@ export default function AdminEventosPage() {
         <h1 className="font-[var(--font-outfit)] text-2xl font-black uppercase tracking-wide text-white">
           <span className="text-cyan-400">Eventos</span>
         </h1>
-        <p className="text-xs text-zinc-500 mt-0.5">{events.length} fechas especiales</p>
+        <p className="text-xs text-zinc-400 mt-0.5">Cartelera de fechas especiales y artistas invitados</p>
       </div>
 
-      <div className="flex-1 space-y-3 pb-28">
+      {/* Alerta si la tabla 'events' aun no existe en Supabase */}
+      {dbError === "missing_table" && (
+        <div className="mb-6 liquid-card rounded-2xl p-4 border border-amber-500/40 bg-amber-950/20 text-left">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="flex-1 text-xs">
+              <p className="font-bold text-amber-300 text-sm mb-1">
+                La tabla &apos;events&apos; no existe en Supabase
+              </p>
+              <p className="text-zinc-300 leading-relaxed mb-3">
+                Para poder guardar eventos, debes ejecutar el script de creación en el <strong className="text-white">SQL Editor</strong> de tu panel de Supabase.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={copySqlScript}
+                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                  {copied ? "¡Copiado al portapapeles!" : "Copiar SQL de Eventos"}
+                </button>
+                <button
+                  type="button"
+                  onClick={fetchEvents}
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] transition-all"
+                >
+                  Ya lo ejecuté, reintentar
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Lista de eventos */}
+      <div className="space-y-3 flex-1">
         {fetching ? (
-          <div className="flex items-center justify-center py-16">
-            <Loader2 className="h-6 w-6 animate-spin text-cyan-400" />
+          <div className="flex items-center justify-center py-20 text-zinc-500 gap-2">
+            <Loader2 className="h-5 w-5 animate-spin text-cyan-400" />
+            <span className="text-xs font-bold">Cargando eventos...</span>
           </div>
         ) : events.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-16 h-16 rounded-2xl liquid-card flex items-center justify-center mb-4 border border-white/10">
-              <Calendar className="w-7 h-7 text-zinc-600" />
-            </div>
-            <p className="text-sm font-bold text-zinc-400">Sin eventos aun</p>
-            <p className="text-xs text-zinc-600 mt-1">Toca el boton + para agregar el primero</p>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-10 text-center">
+            <Calendar className="mx-auto mb-3 h-10 w-10 text-zinc-600" />
+            <p className="text-sm font-bold text-white">No hay eventos registrados</p>
+            <p className="text-xs text-zinc-500 mt-1">Toca el botón + para crear la primera fecha especial</p>
           </div>
         ) : (
           events.map((ev) => {
             const { day, month } = formatDate(ev.event_date);
-            const isPast = ev.event_date < today;
             return (
-              <div key={ev.id} className={"liquid-card rounded-2xl border p-4 flex gap-4 " + (!isPast && ev.is_active ? "border-cyan-500/20" : "border-white/10 opacity-50")}>
+              <div key={ev.id} className="liquid-card rounded-2xl p-4 flex items-center gap-3.5 border border-white/10 hover:border-cyan-400/40 transition-all">
                 <div className="w-14 h-16 rounded-2xl bg-cyan-950/70 border border-cyan-400/40 flex flex-col items-center justify-center text-center shrink-0">
                   <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
                   <span className="text-[10px] font-extrabold text-white uppercase tracking-wider mt-1">{month}</span>
@@ -229,7 +307,7 @@ export default function AdminEventosPage() {
               </div>
 
               <label className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Titulo *</span>
+                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Título *</span>
                 <input required autoFocus value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Ej. Noche de Reggaeton VIP"
                   className="admin-input" />
@@ -267,7 +345,7 @@ export default function AdminEventosPage() {
               </label>
 
               <label className="block">
-                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Descripcion</span>
+                <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Descripción</span>
                 <textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Detalles del evento, show, promociones..."
                   className="admin-input resize-none" />
@@ -299,4 +377,3 @@ export default function AdminEventosPage() {
     </div>
   );
 }
-
