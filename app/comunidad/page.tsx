@@ -6,6 +6,7 @@ import Link from "next/link";
 import AmbientParticles from "@/components/ui/AmbientParticles";
 import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import { Camera, ChevronLeft, Heart, Music, Share2, Sparkles, X } from "lucide-react";
+import { SITE_CONFIG } from "@/lib/config";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -25,7 +26,6 @@ function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
-import { SITE_CONFIG } from "@/lib/config";
 
 interface GalleryPhoto {
   id: string;
@@ -37,39 +37,51 @@ interface GalleryPhoto {
 const PARTY_PHOTOS: GalleryPhoto[] = [
   {
     id: "p1",
-    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
-    caption: "Celebrando por todo lo alto en la zona VIP 🎉",
-    likes: 124,
+    url: "/comunidad/Ambiente_cantante.webp",
+    caption: "Show en vivo y energía total en tarima 🎤✨",
+    likes: 248,
   },
   {
     id: "p2",
-    url: "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?auto=format&fit=crop&w=600&q=80",
-    caption: "Las mejores noches se viven aquí ✨",
-    likes: 89,
+    url: "/comunidad/Cantante_Grijalba.webp",
+    caption: "Presentación estelar de los mejores talentos en vivo 🎶",
+    likes: 195,
   },
   {
     id: "p3",
-    url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
-    caption: "DJ Resident rompiendo la pista 🔥",
-    likes: 256,
+    url: "/comunidad/Clientes_1.webp",
+    caption: "Celebrando las mejores noches en zona VIP 🥂🎉",
+    likes: 312,
   },
   {
     id: "p4",
-    url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=600&q=80",
-    caption: "El ambiente 180° VIP a su máxima potencia",
-    likes: 420,
+    url: "/comunidad/Clientes_2.webp",
+    caption: "Momentos inolvidables con la mejor compañía ✨",
+    likes: 184,
   },
   {
     id: "p5",
-    url: "https://images.unsplash.com/photo-1574391884720-bbc3740c59d1?auto=format&fit=crop&w=600&q=80",
-    caption: "Show de pirotecnia fría y shots para todos",
-    likes: 275,
+    url: "/comunidad/Cocteles.webp",
+    caption: "Coctelería de autor y mezclas exclusivas 🍸🔥",
+    likes: 267,
   },
   {
     id: "p6",
-    url: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&q=80",
-    caption: "Vibra electrónica y ritmos urbanos hasta el amanecer",
-    likes: 390,
+    url: "/comunidad/Cumpleaños.webp",
+    caption: "Festejando cumpleaños por todo lo alto en 180° VIP 🎂🍾",
+    likes: 389,
+  },
+  {
+    id: "p7",
+    url: "/comunidad/Licor_mesa.webp",
+    caption: "Servicio de botellas premium y atención personalizada 🍾🧊",
+    likes: 215,
+  },
+  {
+    id: "p8",
+    url: "/comunidad/Personal.webp",
+    caption: "El equipo listo para brindarte la mejor experiencia VIP ⭐",
+    likes: 278,
   },
 ];
 
@@ -100,6 +112,7 @@ export default function ComunidadPage() {
       </div>
 
       <div className="space-y-6 my-auto bounce-enter relative z-10">
+        {/* Banner Superior de Redes */}
         <div className="liquid-card rounded-[2.5rem] p-6 border border-white/10 text-center relative overflow-hidden">
           <NeonBorderBeam variant="magenta" borderWidth={1.8} />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-b from-pink-500/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
@@ -148,14 +161,15 @@ export default function ComunidadPage() {
           </div>
         </div>
 
+        {/* Galería de Fotos Reales */}
         <div>
           <div className="flex items-center justify-between mb-3 px-1">
             <h2 className="font-[var(--font-outfit)] text-sm font-extrabold uppercase tracking-wider text-white flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-[#ff1b7a]" />
-              Galería de Fiesta
+              Galería 180° VIP
             </h2>
             <span className="text-[11px] font-bold text-zinc-500 uppercase">
-              Momentos VIP
+              Momentos Reales
             </span>
           </div>
 
@@ -166,33 +180,35 @@ export default function ComunidadPage() {
                 <div
                   key={photo.id}
                   onClick={() => setSelectedPhoto(photo)}
-                  className="group relative h-48 rounded-2xl overflow-hidden liquid-card cursor-pointer border border-white/10 select-none"
+                  className="group relative h-52 rounded-2xl overflow-hidden liquid-card cursor-pointer border border-white/10 hover:border-pink-500/50 transition-all select-none shadow-md bg-black/40"
                 >
                   <Image
                     src={photo.url}
                     alt={photo.caption}
                     fill
                     sizes="(max-width: 768px) 200px, 300px"
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
 
+                  {/* Botón Me Gusta */}
                   <button
                     onClick={(e) => toggleLike(photo.id, e)}
-                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                    className="absolute top-2.5 right-2.5 w-8 h-8 rounded-full bg-black/60 backdrop-blur-md flex items-center justify-center text-white/80 hover:text-white transition-all shadow-md active:scale-90 cursor-pointer"
                   >
                     <Heart
                       className={`w-4 h-4 transition-colors ${
-                        isLiked ? "fill-pink-500 text-pink-500" : ""
+                        isLiked ? "fill-pink-500 text-pink-500 scale-110" : ""
                       }`}
                     />
                   </button>
 
+                  {/* Pie de Foto */}
                   <div className="absolute bottom-2.5 left-2.5 right-2.5">
-                    <p className="text-[11px] font-semibold text-white line-clamp-2 leading-tight drop-shadow-md">
+                    <p className="text-[11px] font-bold text-white line-clamp-2 leading-tight drop-shadow-md">
                       {photo.caption}
                     </p>
-                    <span className="text-[10px] text-pink-400 font-bold mt-1 block">
+                    <span className="text-[10px] text-pink-400 font-extrabold mt-1 block">
                       {photo.likes + (isLiked ? 1 : 0)} me gusta
                     </span>
                   </div>
@@ -203,47 +219,51 @@ export default function ComunidadPage() {
         </div>
       </div>
 
+      {/* Modal de Foto Completa */}
       {selectedPhoto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md animate-in fade-in duration-200"
           onClick={() => setSelectedPhoto(null)}
         >
           <div
-            className="relative w-full max-w-sm rounded-3xl bg-[#0f0d18] border border-white/15 p-4 overflow-hidden"
+            className="relative w-full max-w-sm rounded-3xl bg-[#0f0d18] border border-pink-500/30 p-4 overflow-hidden shadow-[0_0_50px_rgba(255,27,122,0.25)] animate-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()}
           >
             <button
               onClick={() => setSelectedPhoto(null)}
-              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white"
+              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/70 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-all cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
-            <div className="relative w-full h-80 rounded-2xl overflow-hidden mb-3">
+            {/* Foto completa con object-contain para no cortar */}
+            <div className="relative w-full h-88 rounded-2xl overflow-hidden mb-3 bg-black/80 flex items-center justify-center border border-white/10">
               <Image
                 src={selectedPhoto.url}
                 alt={selectedPhoto.caption}
                 fill
                 sizes="400px"
-                className="object-cover"
+                className="object-contain"
+                priority
               />
             </div>
 
-            <p className="text-xs text-white font-medium mb-3">
+            <p className="text-xs text-white font-medium mb-3 leading-relaxed">
               {selectedPhoto.caption}
             </p>
 
             <div className="flex items-center justify-between pt-2 border-t border-white/10">
-              <span className="text-xs text-pink-400 font-bold">
+              <span className="text-xs text-pink-400 font-extrabold flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5" />
                 180° VIP Club Night
               </span>
               <a
                 href={SITE_CONFIG.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-zinc-400 hover:text-white flex items-center gap-1 font-bold"
+                className="text-xs text-zinc-300 hover:text-white flex items-center gap-1 font-bold transition-colors"
               >
-                <Share2 className="w-3.5 h-3.5" />
+                <Share2 className="w-3.5 h-3.5 text-pink-400" />
                 Ver en Instagram
               </a>
             </div>
