@@ -1,6 +1,7 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
 import type { Drink } from "@/lib/supabase/queries";
 
 interface DrinkCardProps {
@@ -14,9 +15,54 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
     : "Consultar";
 
   const subtitle = [drink.brand, drink.volume].filter(Boolean).join(" · ");
+  
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isPulsing, setIsPulsing] = useState(false);
+
+  // Efecto de entrada con scroll (IntersectionObserver)
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target); // Solo animar una vez
+        }
+      },
+      {
+        threshold: 0.1, // Dispara cuando el 10% del card es visible
+        rootMargin: "0px 0px -50px 0px"
+      }
+    );
+
+    if (cardRef.current) {
+      observer.observe(cardRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Brillo aleatorio (efecto ambiente)
+  useEffect(() => {
+    if (!isVisible) return;
+    
+    // Aleatorio entre 5 y 15 segundos
+    const randomDelay = Math.random() * 10000 + 5000;
+    
+    const interval = setInterval(() => {
+      // 10% de probabilidad de brillar en cada ciclo
+      if (Math.random() > 0.9) {
+        setIsPulsing(true);
+        setTimeout(() => setIsPulsing(false), 2000);
+      }
+    }, randomDelay);
+
+    return () => clearInterval(interval);
+  }, [isVisible]);
 
   return (
     <div
+      ref={cardRef}
       onClick={onClick}
       role="button"
       tabIndex={0}
@@ -26,14 +72,16 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
           onClick();
         }
       }}
-      className={`liquid-card rounded-[1.75rem] flex flex-col cursor-pointer group relative overflow-hidden transition-all duration-300 select-none ${
-        !drink.is_available ? "opacity-60" : ""
-      }`}
+      className={`liquid-card rounded-[1.75rem] flex flex-col cursor-pointer group relative overflow-hidden transition-all duration-300 select-none 
+        ${!drink.is_available ? "opacity-60" : ""}
+        ${isVisible ? "card-visible" : "card-hidden"}
+        ${isPulsing ? "neon-pulse" : ""}
+      `}
     >
       {/* Glow decorativo */}
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ff1b7a]/10 rounded-full blur-2xl group-hover:bg-[#ff1b7a]/20 transition-all duration-500 pointer-events-none z-0" />
 
-      {/* ===== ZONA DE IMAGEN — grande y protagonista ===== */}
+      {/* ===== ZONA DE IMAGEN - grande y protagonista ===== */}
       <div className="relative w-full h-52 flex items-center justify-center bg-gradient-to-b from-white/[0.04] to-transparent overflow-hidden rounded-t-[1.75rem]">
         {drink.image_url ? (
           <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">

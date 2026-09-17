@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useMemo } from "react";
 import Image from "next/image";
@@ -45,7 +45,7 @@ export default function MenuClient({
     <div className="flex-1 flex flex-col pb-8">
 
       {/* ===== STICKY NAVBAR CON IMAGEN DE FONDO ===== */}
-      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 pb-3 pt-2 overflow-hidden">
+      <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 pb-3 overflow-hidden">
 
         {/* Imagen de fondo del navbar */}
         {bannerUrl ? (
