@@ -1,4 +1,5 @@
-﻿import Link from "next/link";
+import Link from "next/link";
+import AmbientParticles from "@/components/ui/AmbientParticles";
 import { ChevronLeft, Clock, Send, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getWhatsAppReservationUrl } from "@/lib/config";

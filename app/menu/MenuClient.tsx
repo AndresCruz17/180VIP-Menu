@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AmbientParticles from "@/components/ui/AmbientParticles";
 import { ChevronLeft, Search, X } from "lucide-react";
 import DrinkCard from "@/components/menu/DrinkCard";
 import DrinkDetailModal from "@/components/menu/DrinkDetailModal";
@@ -42,7 +43,8 @@ export default function MenuClient({
   }, [initialDrinks, selectedCategory, searchQuery]);
 
   return (
-    <div className="flex-1 flex flex-col pb-8">
+    <div className="flex-1 flex flex-col pb-8 relative overflow-hidden">
+      <AmbientParticles />
 
       {/* ===== STICKY NAVBAR CON IMAGEN DE FONDO ===== */}
       <div className="sticky top-0 z-30 -mx-4 sm:-mx-6 px-4 sm:px-6 pb-3 overflow-hidden">

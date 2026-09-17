@@ -1,8 +1,9 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AmbientParticles from "@/components/ui/AmbientParticles";
 import { Camera, ChevronLeft, Heart, Music, Share2, Sparkles, X } from "lucide-react";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -81,7 +82,8 @@ export default function ComunidadPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between py-2">
+    <div className="flex-1 flex flex-col justify-between py-2 relative overflow-hidden">
+      <AmbientParticles />
       <div className="flex items-center justify-between pt-2 pb-4">
         <Link
           href="/"
@@ -96,7 +98,7 @@ export default function ComunidadPage() {
         <div className="w-11" />
       </div>
 
-      <div className="space-y-6 my-auto">
+      <div className="space-y-6 my-auto bounce-enter relative z-10">
         <div className="liquid-card rounded-[2.5rem] p-6 border border-white/10 text-center relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-b from-pink-500/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
@@ -104,7 +106,7 @@ export default function ComunidadPage() {
             <Camera className="w-6 h-6" />
           </div>
 
-          <h1 className="font-[var(--font-outfit)] text-2xl font-black text-white uppercase tracking-wide">
+          <h1 className="font-[var(--font-outfit)] text-2xl font-black text-white uppercase tracking-wide strobe-effect">
             Únete a la <span className="text-[#ff1b7a]">Comunidad</span>
           </h1>
           <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto mb-5">

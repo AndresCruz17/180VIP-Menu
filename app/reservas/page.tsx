@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import AmbientParticles from "@/components/ui/AmbientParticles";
 import { ChevronLeft, CalendarCheck, Users, Sparkles, Send } from "lucide-react";
 import { getWhatsAppReservationUrl, type ReservationDetails } from "@/lib/config";
 

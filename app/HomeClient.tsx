@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -12,43 +12,7 @@ import {
   Shield 
 } from "lucide-react";
 
-// Particulas flotantes aleatorias
-function AmbientParticles() {
-  const [particles, setParticles] = useState<{ id: number; left: string; top: string; size: string; delay: string; duration: string }[]>([]);
-
-  useEffect(() => {
-    // Generar particulas solo en el cliente
-    const newParticles = Array.from({ length: 15 }).map((_, i) => ({
-      id: i,
-      left: `${Math.random() * 100}vw`,
-      top: `${Math.random() * 100}vh`,
-      size: `${Math.random() * 4 + 1}px`,
-      delay: `${Math.random() * 5}s`,
-      duration: `${Math.random() * 10 + 5}s`,
-    }));
-    setParticles(newParticles);
-  }, []);
-
-  return (
-    <>
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="ambient-particle bg-white"
-          style={{
-            left: p.left,
-            top: p.top,
-            width: p.size,
-            height: p.size,
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-            boxShadow: "0 0 8px 2px rgba(255,255,255,0.4)"
-          }}
-        />
-      ))}
-    </>
-  );
-}
+import AmbientParticles from "@/components/ui/AmbientParticles";
 
 export default function HomeClient() {
   return (
@@ -106,7 +70,7 @@ export default function HomeClient() {
               <Martini className="w-6 h-6" />
             </div>
 
-            <h2 className="font-[var(--font-outfit)] text-xl sm:text-2xl font-black tracking-tight text-white uppercase leading-tight group-hover:text-neon-pink transition-colors duration-300">
+            <h2 className="font-[var(--font-outfit)] text-xl sm:text-2xl font-black tracking-tight text-white uppercase leading-tight group-hover:text-neon-pink transition-colors duration-300 strobe-effect">
               Menu<br />Digital
             </h2>
             <p className="text-xs text-zinc-300 mt-2 mb-4 leading-relaxed">

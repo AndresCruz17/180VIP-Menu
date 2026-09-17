@@ -313,3 +313,56 @@ body {
 .neon-flicker {
   animation: neon-flicker 6s ease-in-out infinite;
 }
+/* --- Laser Sweeps --- */
+@keyframes laser-sweep {
+  0% { transform: translateY(-100vh) rotate(35deg) scaleY(1); opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { transform: translateY(200vh) rotate(35deg) scaleY(1); opacity: 0; }
+}
+.laser-beam {
+  position: absolute;
+  top: 0;
+  left: 30%;
+  width: 2px;
+  height: 150vh;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+}
+.laser-magenta {
+  background: #ff1b7a;
+  box-shadow: 0 0 20px 4px rgba(255,27,122,0.8);
+  animation: laser-sweep 12s ease-in-out infinite;
+  animation-delay: 2s;
+}
+.laser-cyan {
+  left: 70%;
+  background: #00e5ff;
+  box-shadow: 0 0 20px 4px rgba(0,229,255,0.8);
+  animation: laser-sweep 15s ease-in-out infinite;
+  animation-delay: 7s;
+}
+
+/* --- Glitch / Strobe Effect --- */
+@keyframes strobe-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.9; filter: brightness(1.2); }
+  52% { opacity: 0.2; filter: brightness(2) contrast(2); transform: translateX(2px); }
+  54% { opacity: 1; transform: translateX(-2px); }
+  56% { opacity: 0.3; transform: translateX(1px); }
+  58% { opacity: 1; transform: translateX(0); }
+}
+.strobe-effect {
+  animation: strobe-flash 8s infinite;
+}
+
+/* --- Bounce In (Reservas/Eventos) --- */
+@keyframes bounce-enter {
+  0% { transform: scale(0.9) translateY(30px); opacity: 0; }
+  60% { transform: scale(1.02) translateY(-10px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.bounce-enter {
+  animation: bounce-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
