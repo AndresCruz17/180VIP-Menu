@@ -1,0 +1,19 @@
+# Normalizar todos los archivos de texto automáticamente
+* text=auto eol=lf
+
+# Forzar formato específico en archivos web
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.sql text eol=lf
+*.css text eol=lf
+*.html text eol=lf
+
+# Archivos binarios no deben modificarse
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.svg text eol=lf

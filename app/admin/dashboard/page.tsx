@@ -1,4 +1,5 @@
 ﻿import Image from "next/image";
+import MenuBannerUpload from "@/components/admin/MenuBannerUpload";
 import Link from "next/link";
 import { CalendarDays, ExternalLink, FolderKanban, LogOut, Plus, Wine } from "lucide-react";
 import AvailabilityToggle from "@/components/admin/AvailabilityToggle";
@@ -49,6 +50,13 @@ export default async function AdminDashboardPage() {
     .eq("is_active", true);
 
   const drinks = (rawDrinks as unknown as AdminDrinkItem[]) || [];
+
+  const { data: bannerSetting } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", "menu_banner_url")
+    .single();
+  const bannerUrl = bannerSetting?.value || null;
   const availableCount = drinks.filter((d) => d.is_available).length;
   const outOfStockCount = drinks.length - availableCount;
 
@@ -159,6 +167,12 @@ export default async function AdminDashboardPage() {
           </Link>
 
         </div>
+      </div>
+
+      {/* Banner del Menu */}
+      <div className="mb-6">
+        <h2 className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 mb-3">Imagen del Menu</h2>
+        <MenuBannerUpload currentBannerUrl={bannerUrl} />
       </div>
 
       {/* Lista de bebidas */}

@@ -1,9 +1,28 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 import { Camera, ChevronLeft, Heart, Music, Share2, Sparkles, X } from "lucide-react";
+
+function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+    </svg>
+  );
+}
 import { SITE_CONFIG } from "@/lib/config";
 
 interface GalleryPhoto {
@@ -16,21 +35,21 @@ interface GalleryPhoto {
 const PARTY_PHOTOS: GalleryPhoto[] = [
   {
     id: "p1",
-    url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
-    caption: "Noche de DJs invitados y luces neón en el Main Stage",
-    likes: 248,
+    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
+    caption: "Celebrando por todo lo alto en la zona VIP 🎉",
+    likes: 124,
   },
   {
     id: "p2",
     url: "https://images.unsplash.com/photo-1541532713592-79a0317b6b77?auto=format&fit=crop&w=600&q=80",
-    caption: "Celebración en Palco VIP con botellas luminosas",
-    likes: 189,
+    caption: "Las mejores noches se viven aquí ✨",
+    likes: 89,
   },
   {
     id: "p3",
-    url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=600&q=80",
-    caption: "Coctelería de autor y la mejor vibra de la ciudad",
-    likes: 312,
+    url: "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=600&q=80",
+    caption: "DJ Resident rompiendo la pista 🔥",
+    likes: 256,
   },
   {
     id: "p4",
@@ -92,29 +111,35 @@ export default function ComunidadPage() {
             Sube tus historias y fotos etiquetando a <span className="text-white font-bold">@180vip</span> para aparecer en nuestras pantallas.
           </p>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-2">
             <a
               href={SITE_CONFIG.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3.5 rounded-2xl liquid-card flex items-center justify-center gap-2 hover:border-pink-500/60 group transition-all"
+              className="p-3 rounded-2xl liquid-card flex flex-col items-center justify-center gap-1.5 hover:border-pink-500/60 group transition-all"
             >
-              <Camera className="w-4 h-4 text-pink-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-extrabold text-white tracking-wider">
-                Instagram
-              </span>
+              <Camera className="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-white tracking-wider">Insta</span>
             </a>
 
             <a
               href={SITE_CONFIG.tiktokUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3.5 rounded-2xl liquid-card flex items-center justify-center gap-2 hover:border-cyan-400/60 group transition-all"
+              className="p-3 rounded-2xl liquid-card flex flex-col items-center justify-center gap-1.5 hover:border-cyan-400/60 group transition-all"
             >
-              <Music className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-extrabold text-white tracking-wider">
-                TikTok
-              </span>
+              <Music className="w-5 h-5 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-white tracking-wider">TikTok</span>
+            </a>
+
+            <a
+              href={SITE_CONFIG.facebookUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-3 rounded-2xl liquid-card flex flex-col items-center justify-center gap-1.5 hover:border-blue-500/60 group transition-all"
+            >
+              <FacebookIcon className="w-5 h-5 text-blue-400 group-hover:scale-110 transition-transform" />
+              <span className="text-[10px] font-extrabold text-white tracking-wider">Facebook</span>
             </a>
           </div>
         </div>
