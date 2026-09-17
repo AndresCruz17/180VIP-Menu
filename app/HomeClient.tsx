@@ -1,22 +1,14 @@
-﻿"use client";
+"use client";
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { 
-  Martini, 
-  CalendarCheck, 
-  Camera, 
-  Mic, 
-  ArrowRight, 
-  Shield 
-} from "lucide-react";
-
+import { Martini, CalendarCheck, Camera, Mic, ArrowRight, Shield } from "lucide-react";
 import AmbientParticles from "@/components/ui/AmbientParticles";
+import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 
 export default function HomeClient() {
   return (
-    <div className="flex-1 flex flex-col justify-between py-2 relative overflow-hidden">
+    <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-6 relative overflow-hidden">
       <AmbientParticles />
       {/* ===== FONDO DE PANTALLA ===== */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -53,18 +45,27 @@ export default function HomeClient() {
         </p>
       </header>
 
-      {/* Bento Grid */}
+      {/* Bento Grid con movimientos asíncronos y direcciones opuestas */}
       <div className="grid grid-cols-2 gap-3.5 my-auto">
-        {/* Menu Digital - tarjeta tall izquierda */}
+        {/* Menu Digital - tarjeta tall izquierda (Horario, 4.6s, magenta, pulsing) */}
         <Link
           href="/menu"
-          className="row-span-2 liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-[#ff1b7a]/60 bg-black/40 backdrop-blur-md"
+          className="row-span-2 liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-[#ff1b7a]/60 bg-black/40 backdrop-blur-md relative overflow-hidden"
           onMouseEnter={(e) => {
             e.currentTarget.classList.remove('shimmer-go');
-            void e.currentTarget.offsetWidth; // trigger reflow
+            void e.currentTarget.offsetWidth;
             e.currentTarget.classList.add('shimmer-go');
           }}
         >
+          <NeonBorderBeam
+            variant="magenta"
+            borderWidth={1.8}
+            duration={4.6}
+            delay={0}
+            direction="cw"
+            pulsing={true}
+          />
+
           <div>
             <div className="w-12 h-12 rounded-2xl flex items-center justify-center bg-[#ff1b7a]/15 border border-[#ff1b7a]/40 text-[#ff1b7a] shadow-[0_0_20px_rgba(255,27,122,0.35)] mb-5 group-hover:scale-110 transition-transform">
               <Martini className="w-6 h-6" />
@@ -94,16 +95,25 @@ export default function HomeClient() {
           </div>
         </Link>
 
-        {/* Reservas */}
+        {/* Reservas (Antihorario, 5.8s, delay 1.8s, purpura) */}
         <Link
           href="/reservas"
-          className="liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-indigo-500/60 bg-black/40 backdrop-blur-md"
+          className="liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-indigo-500/60 bg-black/40 backdrop-blur-md relative overflow-hidden"
           onMouseEnter={(e) => {
             e.currentTarget.classList.remove('shimmer-go');
             void e.currentTarget.offsetWidth;
             e.currentTarget.classList.add('shimmer-go');
           }}
         >
+          <NeonBorderBeam
+            variant="purple"
+            borderWidth={1.8}
+            duration={5.8}
+            delay={1.8}
+            direction="ccw"
+            pulsing={true}
+          />
+
           <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-indigo-500/20 border border-indigo-500/40 text-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)] group-hover:scale-110 transition-transform">
             <CalendarCheck className="w-5 h-5" />
           </div>
@@ -118,16 +128,25 @@ export default function HomeClient() {
           </div>
         </Link>
 
-        {/* Comunidad */}
+        {/* Comunidad (Horario, 4.0s, delay 1.0s, electric) */}
         <Link
           href="/comunidad"
-          className="liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-pink-500/60 bg-black/40 backdrop-blur-md"
+          className="liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex flex-col justify-between group transition-all duration-300 hover:border-pink-500/60 bg-black/40 backdrop-blur-md relative overflow-hidden"
           onMouseEnter={(e) => {
             e.currentTarget.classList.remove('shimmer-go');
             void e.currentTarget.offsetWidth;
             e.currentTarget.classList.add('shimmer-go');
           }}
         >
+          <NeonBorderBeam
+            variant="electric"
+            borderWidth={1.8}
+            duration={4.0}
+            delay={1.0}
+            direction="cw"
+            pulsing={true}
+          />
+
           <div className="w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-tr from-yellow-500/20 via-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.3)] group-hover:scale-110 transition-transform">
             <Camera className="w-5 h-5" />
           </div>
@@ -142,16 +161,25 @@ export default function HomeClient() {
           </div>
         </Link>
 
-        {/* Fechas Especiales - full width bottom */}
+        {/* Fechas Especiales (Antihorario, 6.4s, delay 2.6s, cyan) */}
         <Link
           href="/eventos"
-          className="col-span-2 liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex items-center justify-between group transition-all duration-300 hover:border-cyan-400/60 border-cyan-500/30 bg-black/40 backdrop-blur-md"
+          className="col-span-2 liquid-card neon-card-border card-shimmer-wrap rounded-[2rem] p-5 flex items-center justify-between group transition-all duration-300 hover:border-cyan-400/60 border-cyan-500/30 bg-black/40 backdrop-blur-md relative overflow-hidden"
           onMouseEnter={(e) => {
             e.currentTarget.classList.remove('shimmer-go');
             void e.currentTarget.offsetWidth;
             e.currentTarget.classList.add('shimmer-go');
           }}
         >
+          <NeonBorderBeam
+            variant="cyan"
+            borderWidth={1.8}
+            duration={6.4}
+            delay={2.6}
+            direction="ccw"
+            pulsing={true}
+          />
+
           <div>
             <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase border border-cyan-400/40 text-cyan-300 bg-cyan-950/50 mb-2 shadow-[0_0_10px_rgba(0,229,255,0.2)]">
               <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />

@@ -98,7 +98,7 @@ function LoginForm() {
 
 export default function AdminLoginPage() {
   return (
-    <div className="flex flex-1 flex-col justify-center py-8">
+    <div className="flex flex-1 flex-col justify-center max-w-md mx-auto w-full px-4 sm:px-6 pt-4 pb-10">
       <Link
         href="/"
         className="mb-8 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-500 transition-colors hover:text-white"

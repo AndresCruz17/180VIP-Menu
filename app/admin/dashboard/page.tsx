@@ -1,5 +1,6 @@
 ﻿import Image from "next/image";
 import MenuBannerUpload from "@/components/admin/MenuBannerUpload";
+import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import Link from "next/link";
 import { CalendarDays, ExternalLink, FolderKanban, LogOut, Plus, Wine } from "lucide-react";
 import AvailabilityToggle from "@/components/admin/AvailabilityToggle";
@@ -61,7 +62,7 @@ export default async function AdminDashboardPage() {
   const outOfStockCount = drinks.length - availableCount;
 
   return (
-    <div className="flex flex-1 flex-col py-4 w-full max-w-lg mx-auto">
+    <div className="flex flex-1 flex-col pt-4 pb-10 w-full max-w-lg mx-auto px-4 sm:px-6">
 
       {/* Header */}
       <header className="mb-6 flex items-center justify-between">
@@ -122,8 +123,9 @@ export default async function AdminDashboardPage() {
           {/* Nueva Bebida */}
           <Link
             href="/admin/productos/nuevo"
-            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-[#ff1b7a]/25 hover:border-[#ff1b7a]/60 transition-all group"
+            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-[#ff1b7a]/25 hover:border-[#ff1b7a]/60 transition-all group relative overflow-hidden"
           >
+            <NeonBorderBeam variant="admin" borderWidth={1.2} />
             <div className="w-10 h-10 rounded-xl bg-[#ff1b7a]/15 border border-[#ff1b7a]/40 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Plus className="w-5 h-5 text-[#ff1b7a]" />
             </div>
@@ -136,8 +138,9 @@ export default async function AdminDashboardPage() {
           {/* Categorias */}
           <Link
             href="/admin/categorias"
-            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-[#00e5ff]/25 hover:border-[#00e5ff]/60 transition-all group"
+            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-[#00e5ff]/25 hover:border-[#00e5ff]/60 transition-all group relative overflow-hidden"
           >
+            <NeonBorderBeam variant="admin" borderWidth={1.2} />
             <div className="w-10 h-10 rounded-xl bg-[#00e5ff]/10 border border-[#00e5ff]/40 flex items-center justify-center group-hover:scale-110 transition-transform">
               <FolderKanban className="w-5 h-5 text-[#00e5ff]" />
             </div>
@@ -150,8 +153,9 @@ export default async function AdminDashboardPage() {
           {/* Eventos */}
           <Link
             href="/admin/eventos"
-            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-cyan-500/25 hover:border-cyan-400/60 transition-all group col-span-2"
+            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-cyan-500/25 hover:border-cyan-400/60 transition-all group col-span-2 relative overflow-hidden"
           >
+            <NeonBorderBeam variant="admin" borderWidth={1.2} />
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-cyan-400/10 border border-cyan-400/40 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                 <CalendarDays className="w-5 h-5 text-cyan-400" />

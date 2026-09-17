@@ -146,7 +146,7 @@ export default function AdminCategoriasPage() {
   };
 
   return (
-    <div className="flex flex-1 flex-col py-4 w-full max-w-lg mx-auto">
+    <div className="flex flex-1 flex-col pt-4 pb-10 w-full max-w-lg mx-auto px-4 sm:px-6">
       {/* Header */}
       <div className="mb-5 flex items-center justify-between">
         <div>
@@ -284,7 +284,7 @@ export default function AdminCategoriasPage() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="Ej. Tequilas"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none transition-colors focus:border-[#ff1b7a]"
+                  className="admin-input"
                 />
               </label>
 
@@ -297,7 +297,7 @@ export default function AdminCategoriasPage() {
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Ej. Tequilas reposados y anejos"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none transition-colors focus:border-[#ff1b7a]"
+                  className="admin-input"
                 />
               </label>
 

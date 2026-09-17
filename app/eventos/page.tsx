@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AmbientParticles from "@/components/ui/AmbientParticles";
+import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import { ChevronLeft, Clock, Send, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getWhatsAppReservationUrl } from "@/lib/config";
@@ -56,7 +57,7 @@ export default async function EventosPage() {
   const events = (data as EventItem[]) || [];
 
   return (
-    <div className="flex-1 flex flex-col justify-between py-2">
+    <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8">
       <div className="flex items-center justify-between pt-2 pb-4">
         <Link href="/" aria-label="Volver al inicio"
           className="w-11 h-11 rounded-2xl liquid-card flex items-center justify-center text-zinc-300 hover:text-white hover:border-cyan-400/40 transition-colors">
@@ -101,6 +102,7 @@ export default async function EventosPage() {
             return (
               <div key={event.id}
                 className="liquid-card rounded-3xl p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 overflow-hidden relative group">
+              <NeonBorderBeam variant="cyan" borderWidth={1.5} />
                 <div className="absolute top-0 right-0 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-cyan-500/20 transition-all" />
 
                 <div className="flex gap-4">

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AmbientParticles from "@/components/ui/AmbientParticles";
+import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import { Camera, ChevronLeft, Heart, Music, Share2, Sparkles, X } from "lucide-react";
 
 function FacebookIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -82,7 +83,7 @@ export default function ComunidadPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col justify-between py-2 relative overflow-hidden">
+    <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8 relative overflow-hidden">
       <AmbientParticles />
       <div className="flex items-center justify-between pt-2 pb-4">
         <Link
@@ -100,6 +101,7 @@ export default function ComunidadPage() {
 
       <div className="space-y-6 my-auto bounce-enter relative z-10">
         <div className="liquid-card rounded-[2.5rem] p-6 border border-white/10 text-center relative overflow-hidden">
+          <NeonBorderBeam variant="magenta" borderWidth={1.8} />
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-gradient-to-b from-pink-500/15 via-purple-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-yellow-500/20 via-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-400 mx-auto mb-3 shadow-[0_0_15px_rgba(236,72,153,0.3)] flex items-center justify-center">

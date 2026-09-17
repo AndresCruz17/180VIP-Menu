@@ -29,7 +29,7 @@ export default async function DrinkDetailPage({ params }: PageProps) {
   const brandVolume = [drink.brand, drink.volume].filter(Boolean).join(" | ");
 
   return (
-    <div className="flex-1 flex flex-col justify-between py-2">
+    <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8">
       <div className="flex items-center justify-between pt-2 pb-6">
         <Link
           href="/menu"

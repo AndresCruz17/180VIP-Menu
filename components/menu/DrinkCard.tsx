@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Drink } from "@/lib/supabase/queries";
+import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 
 interface DrinkCardProps {
   drink: Drink;
@@ -78,6 +79,15 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
         ${isPulsing ? "neon-pulse" : ""}
       `}
     >
+      <NeonBorderBeam
+        variant={drink.is_featured ? "gold" : "magenta"}
+        borderWidth={1.4}
+        duration={5.0 + ((typeof drink.id === 'number' ? drink.id : 1) % 4) * 0.8}
+        delay={((typeof drink.id === 'number' ? drink.id : 1) % 5) * 1.2}
+        direction={(typeof drink.id === 'number' ? drink.id : 1) % 2 === 0 ? "cw" : "ccw"}
+        pulsing={true}
+      />
+
       {/* Glow decorativo */}
       <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ff1b7a]/10 rounded-full blur-2xl group-hover:bg-[#ff1b7a]/20 transition-all duration-500 pointer-events-none z-0" />
 

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --font-outfit: "Segoe UI", Roboto, sans-serif;
-  --font-sans: "Segoe UI", Roboto, sans-serif;
+  --font-outfit: var(--font-title);
+  --font-sans: var(--font-body);
   --bg-space: #06050a;
   --bg-card: rgba(22, 19, 36, 0.65);
   --bg-card-hover: rgba(32, 27, 54, 0.75);
@@ -21,7 +21,7 @@
 body {
   background-color: var(--bg-space);
   color: #ffffff;
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-sans);
   overflow-x: hidden;
   min-height: 100vh;
   margin: 0;
@@ -250,19 +250,39 @@ body {
   animation: card-shimmer 0.9s ease forwards;
 }
 
-/* --- Partícula ambiental (puntos flotantes de luz) --- */
+/* --- Partícula ambiental (puntos flotantes con aumento de tamaño y respiración) --- */
 @keyframes particle-drift {
-  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0.6; }
-  33%  { transform: translateY(-25px) translateX(8px) scale(1.3); opacity: 1; }
-  66%  { transform: translateY(-45px) translateX(-5px) scale(0.9); opacity: 0.7; }
-  100% { transform: translateY(-70px) translateX(3px) scale(0.5); opacity: 0; }
+  0%   { transform: translate3d(0, 0, 0) scale(0.5); opacity: 0.15; }
+  25%  { transform: translate3d(14px, -35px, 0) scale(1.5); opacity: 0.95; }
+  55%  { transform: translate3d(-10px, -75px, 0) scale(1.9); opacity: 0.85; }
+  80%  { transform: translate3d(12px, -115px, 0) scale(1.3); opacity: 0.4; }
+  100% { transform: translate3d(0, -155px, 0) scale(0.4); opacity: 0; }
 }
+
+@keyframes particle-drift-large {
+  0%   { transform: translate3d(0, 0, 0) scale(0.6); opacity: 0; }
+  20%  { opacity: 0.85; }
+  45%  { transform: translate3d(-20px, -50px, 0) scale(2.3); opacity: 1; }
+  75%  { transform: translate3d(16px, -110px, 0) scale(1.7); opacity: 0.6; }
+  100% { transform: translate3d(0, -170px, 0) scale(0.5); opacity: 0; }
+}
+
 .ambient-particle {
   position: fixed;
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
-  animation: particle-drift linear infinite;
+  animation: particle-drift ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.ambient-particle-large {
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
+  animation: particle-drift-large ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 /* --- Entrada de cards con scroll (IntersectionObserver en JS) --- */
@@ -365,4 +385,43 @@ body {
 }
 .bounce-enter {
   animation: bounce-enter 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+/* --- ANIMACION ROTATORIA DEL RAYO NEON EN BORDES --- */
+@keyframes neon-beam-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- ANIMACIONES AVANZADAS DEL RAYO NEÓN EN BORDES --- */
+@keyframes neon-beam-rotate-cw {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes neon-beam-rotate-ccw {
+  0% { transform: rotate(360deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes neon-beam-pulse-surge {
+  0%, 100% {
+    opacity: 0.2;
+    filter: brightness(0.75);
+  }
+  20% {
+    opacity: 1;
+    filter: brightness(1.35);
+  }
+  50% {
+    opacity: 0.35;
+    filter: brightness(0.85);
+  }
+  75% {
+    opacity: 0.95;
+    filter: brightness(1.25);
+  }
 }

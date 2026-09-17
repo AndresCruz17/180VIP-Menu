@@ -150,7 +150,7 @@ export default function AdminEventosPage() {
   const today = new Date().toISOString().split("T")[0];
 
   return (
-    <div className="flex flex-1 flex-col py-4 w-full max-w-lg mx-auto">
+    <div className="flex flex-1 flex-col pt-4 pb-10 w-full max-w-lg mx-auto px-4 sm:px-6">
       <div className="mb-5">
         <Link href="/admin/dashboard" className="mb-1 inline-flex items-center gap-1.5 text-xs font-bold text-zinc-400 transition-colors hover:text-white">
           <ArrowLeft className="h-4 w-4" />Dashboard
@@ -232,21 +232,21 @@ export default function AdminEventosPage() {
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Titulo *</span>
                 <input required autoFocus value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="Ej. Noche de Reggaeton VIP"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors" />
+                  className="admin-input" />
               </label>
 
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Tipo de Evento</span>
                 <input value={formData.tag} onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
                   placeholder="Ej. DJ SET INTERNACIONAL"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors" />
+                  className="admin-input" />
               </label>
 
               <div className="grid grid-cols-2 gap-3">
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Fecha *</span>
                   <input required type="date" value={formData.event_date} onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors [color-scheme:dark]" />
+                    className="admin-input [color-scheme:dark]" />
                 </label>
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Hora</span>
@@ -263,14 +263,14 @@ export default function AdminEventosPage() {
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Artista / DJ</span>
                 <input value={formData.artist} onChange={(e) => setFormData({ ...formData, artist: e.target.value })}
                   placeholder="Ej. DJ Alex Rivas (Special Guest)"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors" />
+                  className="admin-input" />
               </label>
 
               <label className="block">
                 <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Descripcion</span>
                 <textarea rows={3} value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Detalles del evento, show, promociones..."
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors resize-none" />
+                  className="admin-input resize-none" />
               </label>
 
               <label className="block">
