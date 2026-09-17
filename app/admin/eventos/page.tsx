@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Calendar, Edit2, Loader2, Plus, Trash2, X, AlertTriangle, Copy, Check } from "lucide-react";
+import { ArrowLeft, Calendar, Edit2, Loader2, Plus, Trash2, X, AlertTriangle, Copy, Check, RefreshCw } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import {
   deleteStorageFiles,
@@ -30,7 +30,12 @@ const MONTH_LABELS: Record<string, string> = {
 };
 
 function formatDate(dateStr: string) {
-  const [, month, day] = dateStr.split("-");
+  if (!dateStr || !dateStr.includes("-")) {
+    return { day: "--", month: "---" };
+  }
+  const parts = dateStr.split("-");
+  const month = parts[1];
+  const day = parts[2]?.slice(0, 2) || parts[2];
   return { day, month: MONTH_LABELS[month] || month };
 }
 
@@ -43,7 +48,9 @@ export default function AdminEventosPage() {
   const [editingEvent, setEditingEvent] = useState<EventItem | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [dbError, setDbError] = useState<string | null>(null);
+  const [dbErrorMessage, setDbErrorMessage] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [flyerPreviewUrl, setFlyerPreviewUrl] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -65,6 +72,7 @@ export default function AdminEventosPage() {
   const fetchEvents = async () => {
     setFetching(true);
     setDbError(null);
+    setDbErrorMessage(null);
     try {
       const { data, error } = await supabase
         .from("events")
@@ -72,17 +80,26 @@ export default function AdminEventosPage() {
         .order("event_date", { ascending: true });
 
       if (error) {
-        if (error.code === "PGRST205" || error.message?.includes("events")) {
+        console.error("Error al consultar events:", error);
+        setDbErrorMessage(error.message);
+        if (
+          error.code === "PGRST205" ||
+          error.code === "42P01" ||
+          error.message?.includes("does not exist") ||
+          error.message?.includes("not find") ||
+          error.message?.includes("schema cache")
+        ) {
           setDbError("missing_table");
         } else {
-          setDbError(error.message);
+          setDbError("generic_error");
         }
       } else {
         setEvents((data as EventItem[]) || []);
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Error desconocido";
-      setDbError(msg);
+      setDbError("generic_error");
+      setDbErrorMessage(msg);
     } finally {
       setFetching(false);
     }
@@ -132,7 +149,7 @@ export default function AdminEventosPage() {
       if (imageFile) {
         const uploadResult = await uploadOptimizedImage(imageFile, "events");
         imageUrl = uploadResult.publicUrl;
-        if (editingEvent?.image_url) await deleteStorageFiles(supabase, [editingEvent.image_url], "drinks");
+        if (editingEvent?.image_url) await deleteStorageFiles(supabase, [editingEvent.image_url], "events");
       }
       const payload = {
         title: formData.title.trim(),
@@ -154,11 +171,8 @@ export default function AdminEventosPage() {
       await fetchEvents();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error inesperado.";
-      if (message.includes("schema cache") || message.includes("PGRST205") || message.includes("events")) {
-        alert("Falta crear la tabla en Supabase. Por favor ejecuta el script 'supabase/add_events_table.sql' en el SQL Editor de Supabase.");
-      } else {
-        alert("Error al guardar: " + message);
-      }
+      console.error("Error al guardar evento:", err);
+      alert("Error al guardar: " + message);
     } finally {
       setLoading(false);
     }
@@ -168,27 +182,99 @@ export default function AdminEventosPage() {
     if (!window.confirm("¿Eliminar el evento: " + ev.title + "?")) return;
     const { error } = await supabase.from("events").delete().eq("id", ev.id);
     if (error) { alert("Error: " + error.message); return; }
-    if (ev.image_url) await deleteStorageFiles(supabase, [ev.image_url], "drinks");
+    if (ev.image_url) await deleteStorageFiles(supabase, [ev.image_url], "events");
     if (editingEvent?.id === ev.id) closeSheet();
     await fetchEvents();
   };
 
   const copySqlScript = () => {
-    const sql = `create table if not exists public.events (
-  id uuid primary key default gen_random_uuid(),
-  title text not null,
-  tag text not null default 'EVENTO ESPECIAL',
-  event_date date not null,
-  time text not null default '10:00 PM',
-  artist text,
+    const sql = `-- ==============================================================================
+-- TABLA DE EVENTOS Y STORAGE COMPLETO
+-- Ejecuta este script en: Supabase Dashboard -> SQL Editor -> Run
+-- ==============================================================================
+
+-- 1. Eliminar tabla events anterior para recrearla con todas las columnas
+drop table if exists public.events cascade;
+
+-- 2. Crear tabla events con todas las columnas necesarias
+create table public.events (
+  id          uuid primary key default gen_random_uuid(),
+  title       text not null,
+  tag         text not null default 'EVENTO ESPECIAL',
+  slug        text default '',
+  event_date  date not null,
+  time        text not null default '10:00 PM',
+  artist      text,
   description text,
-  image_url text,
-  is_active boolean not null default true,
-  created_at timestamptz not null default now()
+  image_url   text,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default now()
 );
+
+-- 3. Habilitar RLS
 alter table public.events enable row level security;
-create policy "events_public_read" on public.events for select to public using (is_active = true or exists (select 1 from public.admin_users where user_id = (select auth.uid())));
-create policy "events_admin_all" on public.events for all to authenticated using (exists (select 1 from public.admin_users where user_id = (select auth.uid()))) with check (exists (select 1 from public.admin_users where user_id = (select auth.uid())));`;
+
+-- 4. Índices
+create index if not exists events_event_date_idx on public.events (event_date);
+create index if not exists events_is_active_idx on public.events (is_active);
+
+-- 5. Políticas RLS
+drop policy if exists "events_public_read" on public.events;
+create policy "events_public_read"
+  on public.events for select
+  to public
+  using (
+    is_active = true
+    or auth.role() = 'authenticated'
+    or exists (select 1 from public.admin_users where user_id = auth.uid())
+  );
+
+drop policy if exists "events_admin_all" on public.events;
+create policy "events_admin_all"
+  on public.events for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- 6. Storage Bucket
+insert into storage.buckets (id, name, public)
+values ('events', 'events', true)
+on conflict (id) do update set public = true;
+
+drop policy if exists "events_storage_public_read" on storage.objects;
+create policy "events_storage_public_read"
+  on storage.objects for select to public
+  using (bucket_id = 'events');
+
+drop policy if exists "events_storage_auth_insert" on storage.objects;
+create policy "events_storage_auth_insert"
+  on storage.objects for insert to authenticated
+  with check (bucket_id = 'events');
+
+drop policy if exists "events_storage_auth_update" on storage.objects;
+create policy "events_storage_auth_update"
+  on storage.objects for update to authenticated
+  using (bucket_id = 'events') with check (bucket_id = 'events');
+
+drop policy if exists "events_storage_auth_delete" on storage.objects;
+create policy "events_storage_auth_delete"
+  on storage.objects for delete to authenticated
+  using (bucket_id = 'events');
+
+-- 7. Evento de prueba
+insert into public.events (title, tag, event_date, time, artist, description, is_active)
+values (
+  'Noche VIP & Live DJ Set',
+  'EVENTO ESPECIAL',
+  (current_date + interval '2 days')::date,
+  '10:00 PM',
+  'DJ Invitado Especial',
+  'Vive la mejor fiesta con show de luces, pirotecnia fría, servicio de botellas y coctelería premium.',
+  true
+);
+
+notify pgrst, 'reload schema';`;
+
     navigator.clipboard.writeText(sql);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -206,33 +292,43 @@ create policy "events_admin_all" on public.events for all to authenticated using
         <p className="text-xs text-zinc-400 mt-0.5">Cartelera de fechas especiales y artistas invitados</p>
       </div>
 
-      {/* Alerta si la tabla 'events' aun no existe en Supabase */}
-      {dbError === "missing_table" && (
+      {/* Alerta de error de base de datos */}
+      {dbError && (
         <div className="mb-6 liquid-card rounded-2xl p-4 border border-amber-500/40 bg-amber-950/20 text-left">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             <div className="flex-1 text-xs">
               <p className="font-bold text-amber-300 text-sm mb-1">
-                La tabla &apos;events&apos; no existe en Supabase
+                {dbError === "missing_table"
+                  ? "La tabla 'events' necesita actualizarse en Supabase"
+                  : "Error al consultar la base de datos"}
               </p>
-              <p className="text-zinc-300 leading-relaxed mb-3">
-                Para poder guardar eventos, debes ejecutar el script de creación en el <strong className="text-white">SQL Editor</strong> de tu panel de Supabase.
+              <p className="text-zinc-300 leading-relaxed mb-2">
+                {dbError === "missing_table"
+                  ? "Faltan columnas requeridas o la tabla debe recrearse con el script completo en el SQL Editor de tu panel de Supabase."
+                  : `Detalle del error: ${dbErrorMessage || "Error de conexión"}`}
               </p>
+              {dbErrorMessage && (
+                <div className="mb-3 px-2.5 py-1.5 rounded-lg bg-black/40 border border-amber-500/20 font-mono text-[11px] text-amber-200 break-all">
+                  {dbErrorMessage}
+                </div>
+              )}
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
                   onClick={copySqlScript}
-                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md"
+                  className="px-3 py-1.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-[11px] uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
                 >
                   {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? "¡Copiado al portapapeles!" : "Copiar SQL de Eventos"}
+                  {copied ? "¡SQL Copiado!" : "Copiar SQL de Actualización"}
                 </button>
                 <button
                   type="button"
                   onClick={fetchEvents}
-                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-[11px] flex items-center gap-1.5 transition-all cursor-pointer"
                 >
-                  Ya lo ejecuté, reintentar
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Reintentar
                 </button>
               </div>
             </div>
@@ -258,10 +354,25 @@ create policy "events_admin_all" on public.events for all to authenticated using
             const { day, month } = formatDate(ev.event_date);
             return (
               <div key={ev.id} className="liquid-card rounded-2xl p-4 flex items-center gap-3.5 border border-white/10 hover:border-cyan-400/40 transition-all">
-                <div className="w-14 h-16 rounded-2xl bg-cyan-950/70 border border-cyan-400/40 flex flex-col items-center justify-center text-center shrink-0">
-                  <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
-                  <span className="text-[10px] font-extrabold text-white uppercase tracking-wider mt-1">{month}</span>
-                </div>
+                {ev.image_url ? (
+                  <div onClick={() => ev.image_url && setFlyerPreviewUrl(ev.image_url)} title="Clic para ver flyer completo" className="relative w-16 h-18 rounded-2xl overflow-hidden border border-cyan-400/40 shrink-0 shadow-[0_0_10px_rgba(0,229,255,0.2)] bg-black/40 cursor-pointer hover:scale-105 transition-transform">
+                    <Image
+                      src={ev.image_url}
+                      alt={ev.title}
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
+                    <div className="absolute bottom-0 inset-x-0 bg-black/85 backdrop-blur-xs py-0.5 text-center border-t border-cyan-400/30">
+                      <span className="text-[9px] font-black text-cyan-300 leading-none block">{day} {month}</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-14 h-16 rounded-2xl bg-cyan-950/70 border border-cyan-400/40 flex flex-col items-center justify-center text-center shrink-0">
+                    <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
+                    <span className="text-[10px] font-extrabold text-white uppercase tracking-wider mt-1">{month}</span>
+                  </div>
+                )}
                 <div className="flex-1 min-w-0">
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 block mb-0.5">{ev.tag}</span>
                   <h3 className="text-sm font-extrabold text-white leading-tight truncate">{ev.title}</h3>
@@ -273,10 +384,10 @@ create policy "events_admin_all" on public.events for all to authenticated using
                   </button>
                 </div>
                 <div className="flex flex-col items-center gap-2 shrink-0">
-                  <button onClick={() => openEditSheet(ev)} className="w-10 h-10 rounded-xl border border-white/15 bg-white/5 flex items-center justify-center text-zinc-300 hover:border-cyan-400/50 hover:text-white transition-colors">
+                  <button onClick={() => openEditSheet(ev)} className="w-10 h-10 rounded-xl border border-white/15 bg-white/5 flex items-center justify-center text-zinc-300 hover:border-cyan-400/50 hover:text-white transition-colors cursor-pointer">
                     <Edit2 className="h-4 w-4" />
                   </button>
-                  <button onClick={() => handleDelete(ev)} className="w-10 h-10 rounded-xl border border-rose-900/60 bg-rose-950/20 flex items-center justify-center text-rose-400 hover:border-rose-500 transition-colors">
+                  <button onClick={() => handleDelete(ev)} className="w-10 h-10 rounded-xl border border-rose-900/60 bg-rose-950/20 flex items-center justify-center text-rose-400 hover:border-rose-500 transition-colors cursor-pointer">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
@@ -287,7 +398,7 @@ create policy "events_admin_all" on public.events for all to authenticated using
       </div>
 
       <button onClick={openNewSheet} aria-label="Nuevo evento"
-        className="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95 bg-cyan-400 hover:bg-cyan-300 shadow-[0_0_25px_rgba(0,229,255,0.5)]">
+        className="fixed bottom-6 right-6 z-40 w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-transform active:scale-95 bg-cyan-400 hover:bg-cyan-300 shadow-[0_0_25px_rgba(0,229,255,0.5)] cursor-pointer">
         <Plus className="w-7 h-7 text-black" />
       </button>
 
@@ -301,7 +412,7 @@ create policy "events_admin_all" on public.events for all to authenticated using
                 <h2 className="font-[var(--font-outfit)] text-base font-black uppercase text-white">
                   {editingEvent ? "Editar Evento" : "Nuevo Evento"}
                 </h2>
-                <button type="button" onClick={closeSheet} className="w-9 h-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white">
+                <button type="button" onClick={closeSheet} className="w-9 h-9 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white cursor-pointer">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -366,7 +477,7 @@ create policy "events_admin_all" on public.events for all to authenticated using
               </label>
 
               <button type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black uppercase tracking-wider text-black bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all mt-2">
+                className="w-full flex items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black uppercase tracking-wider text-black bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 shadow-[0_0_20px_rgba(0,229,255,0.4)] transition-all mt-2 cursor-pointer">
                 {loading && <Loader2 className="h-4 w-4 animate-spin" />}
                 {editingEvent ? "Actualizar Evento" : "Guardar Evento"}
               </button>
