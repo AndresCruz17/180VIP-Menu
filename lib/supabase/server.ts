@@ -1,5 +1,8 @@
-﻿import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+
+// 30 días de persistencia en cookies de servidor
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 export async function createClient() {
   const cookieStore = await cookies();
@@ -8,6 +11,11 @@ export async function createClient() {
     || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!;
 
   return createServerClient(supabaseUrl, supabaseKey, {
+    cookieOptions: {
+      maxAge: COOKIE_MAX_AGE,
+      sameSite: 'lax',
+      path: '/',
+    },
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -15,10 +23,14 @@ export async function createClient() {
       setAll(cookiesToSet: Array<{ name: string; value: string; options: CookieOptions }>) {
         try {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options)
+            cookieStore.set(name, value, {
+              ...options,
+              // Si options.maxAge === 0 significa que se está cerrando sesión / borrando la cookie
+              maxAge: options?.maxAge === 0 ? 0 : (options?.maxAge ?? COOKIE_MAX_AGE),
+            })
           );
         } catch {
-          // El metodo setAll puede ser llamado desde un Server Component.
+          // El método setAll puede ser llamado desde un Server Component.
         }
       },
     },
