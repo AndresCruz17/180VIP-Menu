@@ -1,11 +1,12 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/public";
 import EventosClient from "./EventosClient";
 import type { EventItem } from "@/components/events/EventDetailModal";
 
+// Incremental Static Regeneration: entrega instantanea desde cache Edge
 export const revalidate = 60;
 
 export default async function EventosPage() {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
   const today = new Date().toISOString().split("T")[0];
 
   const { data } = await supabase

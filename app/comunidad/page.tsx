@@ -67,7 +67,7 @@ const PARTY_PHOTOS: GalleryPhoto[] = [
   },
   {
     id: "p6",
-    url: "/comunidad/Cumpleaños.webp",
+    url: "/comunidad/Cumpleanos.webp",
     caption: "Festejando cumpleaños por todo lo alto en 180° VIP 🎂🍾",
     likes: 389,
   },

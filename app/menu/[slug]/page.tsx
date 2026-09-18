@@ -1,12 +1,28 @@
+export const revalidate = 60;
+
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ChevronLeft, CheckCircle2, AlertCircle } from "lucide-react";
-import { getDrinkBySlug } from "@/lib/supabase/queries";
+import { getDrinkBySlug, getAllActiveDrinks } from "@/lib/supabase/queries";
 import { INITIAL_DRINKS } from "@/lib/mock-data";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateStaticParams() {
+  try {
+    const drinks = await getAllActiveDrinks();
+    const list = drinks && drinks.length > 0 ? drinks : INITIAL_DRINKS;
+    return list.map((drink) => ({
+      slug: drink.slug,
+    }));
+  } catch {
+    return INITIAL_DRINKS.map((drink) => ({
+      slug: drink.slug,
+    }));
+  }
 }
 
 export default async function DrinkDetailPage({ params }: PageProps) {
@@ -61,7 +77,7 @@ export default async function DrinkDetailPage({ params }: PageProps) {
             </div>
           ) : (
             <div className="w-32 h-48 rounded-2xl bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center text-4xl">
-              🍾
+              🍸
             </div>
           )}
         </div>

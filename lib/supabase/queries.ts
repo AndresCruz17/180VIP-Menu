@@ -1,4 +1,4 @@
-import { createClient } from "./server";
+import { createPublicClient } from "./public";
 
 export interface Category {
   id: string;
@@ -31,7 +31,7 @@ export interface Drink {
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("categories")
       .select("id, name, slug, image_url, description, created_at")
@@ -46,7 +46,7 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getAllActiveDrinks(): Promise<Drink[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("drinks")
       .select("id, name, slug, category_id, price, brand, volume, description, image_url, is_available, is_featured, created_at, categories(id, name, slug)")
@@ -62,7 +62,7 @@ export async function getAllActiveDrinks(): Promise<Drink[]> {
 
 export async function getDrinkBySlug(slug: string): Promise<Drink | null> {
   try {
-    const supabase = await createClient();
+    const supabase = createPublicClient();
     const { data, error } = await supabase
       .from("drinks")
       .select("id, name, slug, category_id, price, brand, volume, description, image_url, is_available, is_featured, created_at, categories(id, name, slug)")
