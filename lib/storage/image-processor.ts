@@ -21,7 +21,7 @@ export interface ProcessedImageResult {
 export async function processAndOptimizeImage(
   buffer: Buffer,
   originalFilename: string,
-  folder: 'drinks' | 'categories' | 'events' = 'drinks'
+  folder: 'drinks' | 'categories' | 'events' | 'community' = 'drinks'
 ): Promise<ProcessedImageResult> {
   if (!buffer || buffer.length === 0) {
     throw new Error('El archivo de imagen está vacío o no es válido.');

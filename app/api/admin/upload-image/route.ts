@@ -18,8 +18,14 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
     const rawFolder = formData.get('folder') as string | null;
-    const folder: 'drinks' | 'categories' | 'events' =
-      rawFolder === 'categories' ? 'categories' : rawFolder === 'events' ? 'events' : 'drinks';
+    const folder: 'drinks' | 'categories' | 'events' | 'community' =
+      rawFolder === 'categories'
+        ? 'categories'
+        : rawFolder === 'events'
+        ? 'events'
+        : rawFolder === 'community'
+        ? 'community'
+        : 'drinks';
 
     if (!file || typeof file === 'string') {
       return NextResponse.json(

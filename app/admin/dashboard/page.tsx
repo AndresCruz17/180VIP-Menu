@@ -2,7 +2,7 @@
 import MenuBannerUpload from "@/components/admin/MenuBannerUpload";
 import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import Link from "next/link";
-import { CalendarDays, ExternalLink, FolderKanban, LogOut, Plus, Wine } from "lucide-react";
+import { CalendarDays, Camera, ExternalLink, FolderKanban, LogOut, Plus, Wine } from "lucide-react";
 import AvailabilityToggle from "@/components/admin/AvailabilityToggle";
 import DeleteDrinkButton from "@/components/admin/DeleteDrinkButton";
 import { requireAdminUser } from "@/lib/supabase/auth";
@@ -44,6 +44,17 @@ export default async function AdminDashboardPage() {
   const { count: categoriesCount } = await supabase
     .from("categories")
     .select("id", { count: "exact", head: true });
+
+    let communityCount = 0;
+  try {
+    const { count: cCount } = await supabase
+      .from("community_photos")
+      .select("id", { count: "exact", head: true })
+      .eq("is_active", true);
+    communityCount = cCount || 0;
+  } catch {
+    communityCount = 0;
+  }
 
   const { count: eventsCount } = await supabase
     .from("events")
@@ -167,6 +178,26 @@ export default async function AdminDashboardPage() {
                 </p>
               </div>
               <span className="text-xs font-bold text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity">Gestionar →</span>
+            </div>
+          </Link>
+
+          {/* Comunidad VIP / Galería */}
+          <Link
+            href="/admin/comunidad"
+            className="liquid-card rounded-2xl p-4 flex flex-col gap-3 border border-pink-500/25 hover:border-pink-400/60 transition-all group col-span-2 relative overflow-hidden"
+          >
+            <NeonBorderBeam variant="magenta" borderWidth={1.2} />
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/10 border border-pink-500/40 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Camera className="w-5 h-5 text-pink-400" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-extrabold text-white leading-tight">Galería de Comunidad</p>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  {communityCount ? `${communityCount} foto${communityCount !== 1 ? "s" : ""} visible${communityCount !== 1 ? "s" : ""} en la web` : "Fotos de fiesta, shows y clientes"}
+                </p>
+              </div>
+              <span className="text-xs font-bold text-pink-400 opacity-60 group-hover:opacity-100 transition-opacity">Gestionar →</span>
             </div>
           </Link>
 
