@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import EventDetailModal, { type EventItem } from "@/components/events/EventDetailModal";
-import { ChevronLeft, Clock, Send, Sparkles, Maximize2 } from "lucide-react";
+import { ChevronLeft, Clock, Send, Sparkles, Maximize2, WifiOff } from "lucide-react";
 import { getWhatsAppEventUrl } from "@/lib/config";
 
 const MONTH_LABELS: Record<string, string> = {
@@ -44,7 +44,49 @@ interface EventosClientProps {
 }
 
 export default function EventosClient({ initialEvents }: EventosClientProps) {
+  const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
+  const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Stale-While-Revalidate: guarda copia local de eventos
+  useEffect(() => {
+    try {
+      if (initialEvents && initialEvents.length > 0) {
+        localStorage.setItem(
+          "180vip_events_cache",
+          JSON.stringify({
+            events: initialEvents,
+            savedAt: Date.now(),
+          })
+        );
+      }
+    } catch {}
+
+    if (typeof window !== "undefined") {
+      setIsOffline(!navigator.onLine);
+      const onOnline = () => setIsOffline(false);
+      const onOffline = () => setIsOffline(true);
+      window.addEventListener("online", onOnline);
+      window.addEventListener("offline", onOffline);
+      return () => {
+        window.removeEventListener("online", onOnline);
+        window.removeEventListener("offline", onOffline);
+      };
+    }
+  }, [initialEvents]);
+
+  // Rescate de eventos si no hay conexion
+  useEffect(() => {
+    if ((!initialEvents || initialEvents.length === 0) && typeof window !== "undefined") {
+      try {
+        const cached = localStorage.getItem("180vip_events_cache");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.events?.length > 0) setEvents(parsed.events);
+        }
+      } catch {}
+    }
+  }, [initialEvents]);
 
   return (
     <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-12">
@@ -61,161 +103,128 @@ export default function EventosClient({ initialEvents }: EventosClientProps) {
         <div className="w-11" />
       </div>
 
-      {/* Titular */}
       <div className="text-center mb-6">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase border border-cyan-400/40 text-cyan-300 bg-cyan-950/50 mb-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          Próximas Fechas
-        </div>
-        <h1 className="font-[var(--font-outfit)] text-2xl sm:text-3xl font-black text-white uppercase tracking-wide">
-          Fechas <span className="text-cyan-400 drop-shadow-[0_0_12px_rgba(0,229,255,0.4)]">Especiales</span>
-        </h1>
-        <p className="text-xs text-zinc-400 mt-1 max-w-xs mx-auto">
-          Toca cualquier evento para ver el flyer oficial y todos los detalles.
+        <p className="text-[10px] font-extrabold uppercase tracking-[0.25em] text-cyan-400 mb-1 flex items-center justify-center gap-1">
+          <Sparkles className="w-3 h-3 text-cyan-400" />
+          Noches Exclusivas
         </p>
+        <h1 className="font-[var(--font-outfit)] text-2xl sm:text-3xl font-black uppercase text-white tracking-wider">
+          Próximos Eventos
+        </h1>
       </div>
 
+      {/* Notificación de Modo Offline */}
+      {isOffline && (
+        <div className="mb-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 px-3.5 py-2 text-center text-[11px] font-bold text-amber-300 flex items-center justify-center gap-2 backdrop-blur-md">
+          <WifiOff className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+          <span>Sin señal de internet — Mostrando cartelera guardada en este dispositivo</span>
+        </div>
+      )}
+
       {/* Lista de Eventos */}
-      <div className="space-y-6 my-auto">
-        {initialEvents.length === 0 ? (
-          <div className="liquid-card rounded-3xl p-10 border border-white/10 text-center">
-            <p className="text-zinc-500 text-sm font-bold">Próximamente nuevas fechas</p>
-            <p className="text-zinc-600 text-xs mt-1">Síguenos en redes para no perderte nada</p>
+      <div className="space-y-4 my-auto">
+        {events.length === 0 ? (
+          <div className="liquid-card rounded-3xl p-8 text-center border border-white/10">
+            <span className="text-3xl mb-3 block">🎉</span>
+            <p className="text-sm font-bold text-white uppercase tracking-wider mb-1">
+              Próximamente más eventos
+            </p>
+            <p className="text-xs text-zinc-400">
+              Estamos preparando las mejores noches VIP. ¡Atento a nuestras redes!
+            </p>
           </div>
         ) : (
-          initialEvents.map((event) => {
-            const { day, month, fullDate } = formatEventDate(event.event_date);
-            const waUrl = getWhatsAppEventUrl({
-              eventTitle: event.title,
-              date: fullDate,
-              time: event.time,
-              artist: event.artist,
-            });
-
+          events.map((ev) => {
+            const { day, month, fullDate } = formatEventDate(ev.event_date);
             return (
               <div
-                key={event.id}
-                className="liquid-card rounded-3xl p-4 sm:p-5 border border-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 overflow-hidden relative group shadow-lg"
+                key={ev.id}
+                className="relative rounded-3xl p-4 overflow-hidden border border-white/15 bg-black/40 backdrop-blur-md transition-all hover:border-cyan-400/40"
               >
-                <NeonBorderBeam variant="cyan" borderWidth={1.5} />
-                <div className="absolute top-0 right-0 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none group-hover:bg-cyan-500/20 transition-all" />
+                <NeonBorderBeam variant="cyan" duration={6} />
 
-                {/* Si el evento tiene flyer */}
-                {event.image_url ? (
-                  <>
-                    {/* Flyer Container Clickeable */}
-                    <div
-                      onClick={() => setSelectedEvent(event)}
-                      className="relative w-full h-80 sm:h-96 rounded-2xl overflow-hidden mb-4 border border-white/10 group-hover:border-cyan-400/40 transition-colors shadow-2xl bg-black/60 cursor-pointer"
-                    >
-                      <Image
-                        src={event.image_url}
-                        alt={event.title}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 420px"
-                        className="object-cover group-hover:scale-105 transition-transform duration-500"
-                        priority
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0714] via-black/20 to-transparent" />
+                {/* Badge de etiqueta arriba */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-400/15 text-cyan-300 border border-cyan-400/30">
+                    {ev.tag || "Noche VIP"}
+                  </span>
+                  <span className="text-[11px] text-zinc-400 flex items-center gap-1 font-medium">
+                    <Clock className="w-3 h-3 text-cyan-400" />
+                    {ev.time}
+                  </span>
+                </div>
 
-                      {/* Tag flotante */}
-                      <div className="absolute top-3 left-3">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-black/80 backdrop-blur-md border border-cyan-400/50 text-cyan-300 shadow-md">
-                          {event.tag}
-                        </span>
-                      </div>
-
-                      {/* Fecha flotante */}
-                      <div className="absolute top-3 right-3 w-14 h-14 rounded-2xl bg-black/85 backdrop-blur-md border border-cyan-400/60 flex flex-col items-center justify-center text-center shadow-lg shrink-0 overflow-hidden">
-                        <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
-                        <span className="text-[9px] font-black text-white uppercase tracking-wider mt-0.5">{month}</span>
-                      </div>
-
-                      {/* Botón flotante para ver flyer completo */}
-                      <div className="absolute bottom-3 right-3">
-                        <div className="px-3 py-1.5 rounded-xl bg-black/80 hover:bg-cyan-400 hover:text-black backdrop-blur-md border border-cyan-400/50 text-cyan-300 text-[10px] font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xl transition-all">
-                          <Maximize2 className="w-3.5 h-3.5" />
-                          Ver Flyer Completo
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Información del Evento */}
-                    <div onClick={() => setSelectedEvent(event)} className="cursor-pointer">
-                      <h2 className="font-[var(--font-outfit)] text-lg font-black text-white leading-tight hover:text-cyan-300 transition-colors">
-                        {event.title}
-                      </h2>
-                      <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1.5">
-                        <Clock className="w-3.5 h-3.5 text-cyan-400" />
-                        <span className="font-bold text-zinc-200">{event.time}</span>
-                        {event.artist && (
-                          <>
-                            <span className="text-zinc-600">·</span>
-                            <span className="text-zinc-300 font-medium truncate">{event.artist}</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  /* Formato sin imagen */
-                  <div onClick={() => setSelectedEvent(event)} className="flex gap-4 cursor-pointer">
-                    <div className="w-14 h-16 rounded-2xl bg-cyan-950/70 border border-cyan-400/40 flex flex-col items-center justify-center text-center shrink-0 shadow-[0_0_12px_rgba(0,229,255,0.2)]">
-                      <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
-                      <span className="text-[10px] font-extrabold text-white uppercase tracking-wider mt-1">{month}</span>
-                    </div>
-
-                    <div className="flex-1">
-                      <span className="text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 block mb-1">{event.tag}</span>
-                      <h2 className="font-[var(--font-outfit)] text-base font-extrabold text-white leading-tight">{event.title}</h2>
-                      <div className="flex items-center gap-2 text-xs text-zinc-400 mt-1">
-                        <Clock className="w-3.5 h-3.5 text-zinc-500" />
-                        <span>{event.time}</span>
-                        {event.artist && (
-                          <>
-                            <span>·</span>
-                            <span className="text-zinc-300 font-medium truncate">{event.artist}</span>
-                          </>
-                        )}
-                      </div>
+                {/* Banner de Flyer con botón para ver completo */}
+                {ev.image_url && (
+                  <div
+                    onClick={() => setSelectedEvent(ev)}
+                    className="group relative w-full h-44 sm:h-48 rounded-2xl overflow-hidden mb-3 bg-black/60 border border-white/10 cursor-pointer"
+                  >
+                    <Image
+                      src={ev.image_url}
+                      alt={ev.title}
+                      fill
+                      sizes="(max-width: 768px) 380px, 480px"
+                      className="object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+                    <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-[10px] font-bold text-white border border-white/20 group-hover:border-cyan-400 transition-colors">
+                      <Maximize2 className="w-3 h-3 text-cyan-400" />
+                      Ver flyer completo
                     </div>
                   </div>
                 )}
 
-                {event.description && (
-                  <p className="text-xs text-zinc-300 mt-3 font-light leading-relaxed line-clamp-2">
-                    {event.description}
+                {/* Contenido: Fecha + Info */}
+                <div className="flex items-center gap-3 mb-3">
+                  {/* Badge de Fecha */}
+                  <div className="w-14 h-14 rounded-2xl bg-cyan-400/10 border border-cyan-400/30 flex flex-col items-center justify-center shrink-0">
+                    <span className="font-[var(--font-outfit)] text-xl font-black text-white leading-none">
+                      {day}
+                    </span>
+                    <span className="text-[9px] font-extrabold text-cyan-400 uppercase tracking-wider leading-none mt-0.5">
+                      {month}
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <h2 className="font-[var(--font-outfit)] text-lg font-black uppercase text-white tracking-wide truncate">
+                      {ev.title}
+                    </h2>
+                    {ev.artist && (
+                      <p className="text-xs font-bold text-cyan-400 truncate mt-0.5">
+                        {ev.artist}
+                      </p>
+                    )}
+                    <p className="text-[11px] text-zinc-400 capitalize mt-0.5">
+                      {fullDate}
+                    </p>
+                  </div>
+                </div>
+
+                {ev.description && (
+                  <p className="text-xs text-zinc-300 leading-relaxed mb-3 line-clamp-2">
+                    {ev.description}
                   </p>
                 )}
 
-                {/* Acciones */}
-                <div className="mt-4 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedEvent(event)}
-                    className="px-3 py-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-zinc-300 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
-                    Ver Flyer
-                  </button>
-
-                  <a
-                    href={waUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 py-2.5 px-4 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-extrabold text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,229,255,0.4)] flex items-center justify-center gap-1.5 active:scale-[0.98]"
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                    Reservar
-                  </a>
-                </div>
+                {/* Boton de Reserva directa por WhatsApp */}
+                <a
+                  href={getWhatsAppEventUrl({ eventTitle: ev.title, date: fullDate, time: ev.time, artist: ev.artist })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 w-full py-2.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs uppercase tracking-wider transition-all shadow-[0_0_15px_rgba(0,229,255,0.25)] hover:shadow-[0_0_25px_rgba(0,229,255,0.45)]"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  Reservar Mi Palco
+                </a>
               </div>
             );
           })
         )}
       </div>
 
-      {/* Modal de Detalle Completo del Evento */}
+      {/* Modal de Flyer Completo */}
       <EventDetailModal
         event={selectedEvent}
         onClose={() => setSelectedEvent(null)}
