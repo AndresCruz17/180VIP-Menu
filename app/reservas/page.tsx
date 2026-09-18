@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, Send, Users, Sparkles, CalendarCheck } from "lucide-react";
+import { ChevronLeft, Send, Users, Sparkles, CalendarCheck, Clock, Calendar } from "lucide-react";
 import { getWhatsAppReservationUrl } from "@/lib/config";
 import type { ReservationDetails } from "@/lib/config";
 import AmbientParticles from "@/components/ui/AmbientParticles";
@@ -17,6 +17,31 @@ export default function ReservasPage() {
   const [zone, setZone] = useState<ReservationDetails["zone"]>("VIP Palco");
   const [specialRequests, setSpecialRequests] = useState("");
 
+  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+
+  // Helpers para selección rápida de fecha
+  const getUpcomingDay = (targetDay: number) => {
+    const now = new Date();
+    const currentDay = now.getDay();
+    let diff = targetDay - currentDay;
+    if (diff <= 0) diff += 7;
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + diff);
+    return targetDate.toISOString().split("T")[0];
+  };
+
+  const upcomingFri = useMemo(() => getUpcomingDay(5), []);
+  const upcomingSat = useMemo(() => getUpcomingDay(6), []);
+
+  const formattedDateLabel = useMemo(() => {
+    if (!date || !date.includes("-")) return null;
+    const [year, month, day] = date.split("-");
+    const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    return `${days[d.getDay()]}, ${parseInt(day)} de ${months[d.getMonth()]}`;
+  }, [date]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name || !date) {
@@ -27,7 +52,7 @@ export default function ReservasPage() {
     const url = getWhatsAppReservationUrl({
       name,
       phone,
-      date,
+      date: formattedDateLabel || date,
       time,
       guests,
       zone,
@@ -37,11 +62,10 @@ export default function ReservasPage() {
     window.open(url, "_blank");
   };
 
-  // Estilo reutilizable para los inputs (Glow/Glass effect en lugar de negro solido)
-  const inputStyles = "w-full bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-4 py-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.2)]";
+  const inputStyles = "w-full bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]";
 
   return (
-    <div className="flex-1 flex flex-col max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8 relative">
+    <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8 relative overflow-hidden">
       <AmbientParticles />
       
       {/* Header Fijo */}
@@ -105,29 +129,79 @@ export default function ReservasPage() {
               />
             </div>
 
-            {/* Grid responsive: 1 columna en moviles chicos, 2 en mas grandes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {/* Fecha y Hora - Diseño limpio y funcional sin desbordes */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
-                  Fecha *
+                <label className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-indigo-400" />
+                    Fecha *
+                  </span>
                 </label>
+
+                {/* Input de Fecha con altura h-12 controlada y padding exacto */}
                 <input
                   type="date"
                   required
+                  min={todayStr}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className={`${inputStyles} [color-scheme:dark]`}
+                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all [color-scheme:dark]"
                 />
+
+                {/* Atajos rápidos muy funcionales para noche de fiesta */}
+                <div className="flex items-center gap-1.5 mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setDate(todayStr)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+                      date === todayStr
+                        ? "bg-indigo-600 text-white border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        : "bg-white/[0.04] hover:bg-white/10 text-zinc-400 border-white/10"
+                    }`}
+                  >
+                    Hoy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDate(upcomingFri)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+                      date === upcomingFri
+                        ? "bg-indigo-600 text-white border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        : "bg-white/[0.04] hover:bg-white/10 text-zinc-400 border-white/10"
+                    }`}
+                  >
+                    Viernes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDate(upcomingSat)}
+                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer border ${
+                      date === upcomingSat
+                        ? "bg-indigo-600 text-white border-indigo-400 shadow-[0_0_10px_rgba(99,102,241,0.5)]"
+                        : "bg-white/[0.04] hover:bg-white/10 text-zinc-400 border-white/10"
+                    }`}
+                  >
+                    Sábado
+                  </button>
+                </div>
+
+                {formattedDateLabel && (
+                  <p className="text-[11px] text-indigo-300 font-semibold mt-1.5 ml-1">
+                    📅 {formattedDateLabel}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
+                <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
                   Hora Llegada
                 </label>
                 <select
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className={`${inputStyles} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]`}
+                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"
                 >
                   <option value="9:30 PM" className="bg-[#120f20]">9:30 PM</option>
                   <option value="10:00 PM" className="bg-[#120f20]">10:00 PM</option>
@@ -139,7 +213,7 @@ export default function ReservasPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
                   <Users className="w-3.5 h-3.5 text-indigo-400" />
@@ -148,7 +222,7 @@ export default function ReservasPage() {
                 <select
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
-                  className={`${inputStyles} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]`}
+                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"
                 >
                   <option value="2" className="bg-[#120f20]">2 personas</option>
                   <option value="4" className="bg-[#120f20]">4 personas</option>
@@ -166,7 +240,7 @@ export default function ReservasPage() {
                 <select
                   value={zone}
                   onChange={(e) => setZone(e.target.value as ReservationDetails["zone"])}
-                  className={`${inputStyles} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]`}
+                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"
                 >
                   <option value="VIP Palco" className="bg-[#120f20]">💎 Palco VIP</option>
                   <option value="Mesa VIP" className="bg-[#120f20]">✨ Mesa VIP</option>
@@ -185,7 +259,7 @@ export default function ReservasPage() {
                 onChange={(e) => setSpecialRequests(e.target.value)}
                 placeholder="Cumpleaños, Old Parr preferida..."
                 rows={2}
-                className={`${inputStyles} resize-none`}
+                className="w-full bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] resize-none"
               />
             </div>
 

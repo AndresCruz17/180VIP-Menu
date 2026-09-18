@@ -126,7 +126,7 @@ export default function EventosClient({ initialEvents }: EventosClientProps) {
                       </div>
 
                       {/* Fecha flotante */}
-                      <div className="absolute top-3 right-3 w-13 h-14 rounded-xl bg-black/85 backdrop-blur-md border border-cyan-400/60 flex flex-col items-center justify-center text-center shadow-lg px-2">
+                      <div className="absolute top-3 right-3 w-14 h-14 rounded-2xl bg-black/85 backdrop-blur-md border border-cyan-400/60 flex flex-col items-center justify-center text-center shadow-lg shrink-0 overflow-hidden">
                         <span className="font-[var(--font-outfit)] text-lg font-black text-cyan-300 leading-none">{day}</span>
                         <span className="text-[9px] font-black text-white uppercase tracking-wider mt-0.5">{month}</span>
                       </div>

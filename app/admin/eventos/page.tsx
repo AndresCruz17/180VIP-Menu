@@ -431,18 +431,32 @@ notify pgrst, 'reload schema';`;
                   className="admin-input" />
               </label>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Fecha *</span>
-                  <input required type="date" value={formData.event_date} onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
-                    className="admin-input [color-scheme:dark]" />
+                  <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                    <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                    Fecha del Evento *
+                  </span>
+                  <input
+                    required
+                    type="date"
+                    value={formData.event_date}
+                    onChange={(e) => setFormData({ ...formData, event_date: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-[#120f20] px-3.5 h-11 text-sm text-white outline-none focus:border-cyan-400 transition-colors [color-scheme:dark]"
+                  />
                 </label>
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-bold uppercase tracking-wider text-zinc-400">Hora</span>
-                  <select value={formData.time} onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                    className="w-full rounded-xl border border-white/10 bg-[#120f20] p-3 text-sm text-white outline-none focus:border-cyan-400 transition-colors">
-                    {["9:00 PM","9:30 PM","10:00 PM","10:30 PM","11:00 PM","11:30 PM","12:00 AM"].map((t) => (
-                      <option key={t} value={t}>{t}</option>
+                  <span className="mb-1.5 flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                    <Clock className="w-3.5 h-3.5 text-cyan-400" />
+                    Hora de Inicio
+                  </span>
+                  <select
+                    value={formData.time}
+                    onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-[#120f20] px-3.5 h-11 text-sm text-white outline-none focus:border-cyan-400 transition-colors cursor-pointer"
+                  >
+                    {["8:00 PM","8:30 PM","9:00 PM","9:30 PM","10:00 PM","10:30 PM","11:00 PM","11:30 PM","12:00 AM","12:30 AM","1:00 AM"].map((t) => (
+                      <option key={t} value={t} className="bg-[#120f20] text-white">{t}</option>
                     ))}
                   </select>
                 </label>

@@ -107,7 +107,7 @@ export default function EventDetailModal({ event, onClose }: EventDetailModalPro
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-zinc-300">
                 <Calendar className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span className="font-semibold capitalize truncate">{fullDate}</span>
+                <span className="font-bold capitalize text-white text-xs">{fullDate}</span>
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/[0.04] border border-white/10 text-zinc-300">
                 <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
