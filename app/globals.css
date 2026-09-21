@@ -296,8 +296,8 @@ body {
 
 /* --- Pulso neon en el borde de la card del menú --- */
 @keyframes neon-pulse-magenta {
-  0%, 100% { box-shadow: 0 0 0px rgba(255,27,122,0), 0 8px 32px 0 rgba(0,0,0,0.37); }
-  50%       { box-shadow: 0 0 18px rgba(255,27,122,0.55), 0 0 40px rgba(255,27,122,0.2), 0 8px 32px 0 rgba(0,0,0,0.37); }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 .neon-pulse {
   animation: neon-pulse-magenta 2s ease-in-out;
@@ -357,10 +357,10 @@ body {
 /* --- Glitch / Strobe Effect --- */
 @keyframes strobe-flash {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.9; filter: brightness(1.2); }
-  52% { opacity: 0.2; filter: brightness(2) contrast(2); transform: translateX(2px); }
+  50% { opacity: 0.85; }
+  52% { opacity: 0.25; transform: translateX(2px); }
   54% { opacity: 1; transform: translateX(-2px); }
-  56% { opacity: 0.3; transform: translateX(1px); }
+  56% { opacity: 0.35; transform: translateX(1px); }
   58% { opacity: 1; transform: translateX(0); }
 }
 .strobe-effect {
