@@ -13,10 +13,11 @@ export default function HomeClient() {
       {/* ===== FONDO DE PANTALLA ===== */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <Image
-          src="/Fondo_home.jpg"
+          src="/Fondo_home.webp"
           alt="180° VIP Background"
           fill
           priority
+          fetchPriority="high"
           sizes="100vw"
           className="object-cover object-center"
         />
@@ -32,11 +33,12 @@ export default function HomeClient() {
       <header className="flex flex-col items-center justify-center pt-2 pb-6 text-center">
         <div className="relative w-36 h-36 sm:w-40 sm:h-40 logo-float logo-glow transition-transform duration-500 hover:scale-110">
           <Image
-            src="/logo.png"
+            src="/logo.webp"
             alt="180° VIP Logo"
             fill
             sizes="160px"
             priority
+            fetchPriority="high"
             className="object-contain"
           />
         </div>

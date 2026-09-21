@@ -105,6 +105,7 @@ export default function MenuClient({
               alt="Menú 180° VIP"
               fill
               priority
+              fetchPriority="high"
               sizes="100vw"
               className="object-cover object-center opacity-85 scale-100"
             />
