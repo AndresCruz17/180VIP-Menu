@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["lucide-react"],
+  },
   images: {
     // Genera automáticamente formatos modernos AVIF y WebP según soporte del navegador
     formats: ["image/avif", "image/webp"],

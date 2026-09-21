@@ -190,23 +190,14 @@ body {
   animation: logo-float 4s ease-in-out infinite;
 }
 
-/* --- Pulso del glow del logo --- */
-@keyframes logo-glow-pulse {
-  0%, 100% { filter: drop-shadow(0 0 18px rgba(255,27,122,0.45)) drop-shadow(0 0 40px rgba(157,78,221,0.2)); }
-  50%       { filter: drop-shadow(0 0 35px rgba(255,27,122,0.75)) drop-shadow(0 0 70px rgba(157,78,221,0.45)); }
-}
+/* --- Glow del logo con drop-shadow estático de alto impacto --- */
 .logo-glow {
-  animation: logo-glow-pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 22px rgba(255,27,122,0.65)) drop-shadow(0 0 45px rgba(157,78,221,0.35));
+  will-change: transform;
 }
 
 /* --- Borde neon rotante en las cards del home --- */
-@keyframes neon-border-spin {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Card con borde neon animado (se aplica al pseudo-elemento ::before) */
+/* Card con borde neon estático elegante y transición de opacidad por GPU */
 .neon-card-border {
   position: relative;
 }
@@ -215,12 +206,11 @@ body {
   position: absolute;
   inset: -1.5px;
   border-radius: inherit;
-  background: linear-gradient(120deg, #ff1b7a, #9d4edd, #00e5ff, #ff1b7a);
-  background-size: 300% 300%;
-  animation: neon-border-spin 4s linear infinite;
+  background: linear-gradient(135deg, rgba(255,27,122,0.8), rgba(157,78,221,0.6), rgba(0,229,255,0.8));
   opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: opacity 0.35s ease;
   z-index: -1;
+  will-change: opacity;
 }
 .neon-card-border:hover::before,
 .neon-card-border.neon-active::before {
@@ -409,19 +399,15 @@ body {
 
 @keyframes neon-beam-pulse-surge {
   0%, 100% {
-    opacity: 0.2;
-    filter: brightness(0.75);
+    opacity: 0.25;
   }
   20% {
     opacity: 1;
-    filter: brightness(1.35);
   }
   50% {
     opacity: 0.35;
-    filter: brightness(0.85);
   }
   75% {
     opacity: 0.95;
-    filter: brightness(1.25);
   }
 }
