@@ -275,6 +275,9 @@ export default function ReservasPage() {
           <p className="text-[11px] text-zinc-400 text-center mt-7">
             Te atenderemos de inmediato confirmando disponibilidad y tarifa mínima de consumo.
           </p>
+          <p className="text-[10px] text-zinc-500 text-center mt-3 leading-relaxed">
+            * El exceso de alcohol es perjudicial para la salud (Ley 30 de 1986). Prohíbase el expendio a menores de edad (Ley 124 de 1994).
+          </p>
         </div>
       </div>
     </div>

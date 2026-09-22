@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AmbientParticles from "@/components/ui/AmbientParticles";
-import { ChevronLeft, Search, X, Sparkles, WifiOff } from "lucide-react";
+import { ChevronLeft, Search, X, Sparkles, WifiOff, ShieldAlert } from "lucide-react";
 import DrinkCard from "@/components/menu/DrinkCard";
 import DrinkDetailModal from "@/components/menu/DrinkDetailModal";
 import type { Category, Drink } from "@/lib/supabase/queries";
@@ -237,6 +237,24 @@ export default function MenuClient({
           </div>
         )}
       </main>
+
+      {/* Footer Legal & Consumo Responsable */}
+      <footer className="mt-14 pb-12 text-center border-t border-white/5 pt-8 px-4 relative z-10 max-w-lg mx-auto">
+        <div className="inline-flex items-center justify-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 mb-3">
+          <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-[10px] font-bold tracking-wider uppercase text-zinc-300">
+            Consumo Responsable
+          </span>
+        </div>
+        <p className="text-[11px] leading-relaxed text-zinc-400 font-medium">
+          El exceso de alcohol es perjudicial para la salud. Ley 30 de 1986.
+          <br />
+          Prohíbase el expendio de bebidas embriagantes a menores de edad. Ley 124 de 1994.
+        </p>
+        <p className="text-[10px] text-zinc-600 mt-4 tracking-widest uppercase font-bold">
+          180° VIP · Nightclub Experience
+        </p>
+      </footer>
 
       <DrinkDetailModal
         drink={activeDrink}

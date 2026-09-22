@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Roboto } from "next/font/google";
 import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
+import NeonTopProgressBar from "@/components/ui/NeonTopProgressBar";
 import "./globals.css";
 
 // Fuentes optimizadas con display swap para renderizado instantaneo sin bloqueo de texto
@@ -114,6 +115,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${bebasNeue.variable} ${roboto.variable} font-body min-h-screen bg-[#06050a] text-white selection:bg-[#ff1b7a] selection:text-white antialiased overflow-x-hidden max-w-full`}>
+        <NeonTopProgressBar />
         <ServiceWorkerRegister />
         <div className="ambient-glow" />
         <main className="relative z-10 min-h-screen flex flex-col w-full">
