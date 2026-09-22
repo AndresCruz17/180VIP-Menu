@@ -103,6 +103,8 @@ function NeonBorderBeam({
         mask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
         maskComposite: "exclude",
         opacity: isSubtle ? 0.6 : 0.95,
+        clipPath: "inset(0 round inherit)",
+        contain: "paint",
       }}
       aria-hidden="true"
     >

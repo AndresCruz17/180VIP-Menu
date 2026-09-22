@@ -62,7 +62,7 @@ export default function ReservasPage() {
     window.open(url, "_blank");
   };
 
-  const inputStyles = "w-full bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]";
+  const inputStyles = "w-full max-w-full min-w-0 block box-border bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-4 py-3 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)]";
 
   return (
     <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8 relative overflow-hidden">
@@ -130,8 +130,8 @@ export default function ReservasPage() {
             </div>
 
             {/* Fecha y Hora - Diseño limpio y funcional sin desbordes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-full">
+              <div className="w-full min-w-0 max-w-full">
                 <label className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
                   <span className="flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5 text-indigo-400" />
@@ -139,14 +139,14 @@ export default function ReservasPage() {
                   </span>
                 </label>
 
-                {/* Input de Fecha con altura h-12 controlada y padding exacto */}
+                {/* Input de Fecha con altura h-12 controlada, min-w-0 y max-w-full */}
                 <input
                   type="date"
                   required
                   min={todayStr}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all [color-scheme:dark]"
+                  className={`${inputStyles} [color-scheme:dark]`}
                 />
 
                 {/* Atajos rápidos muy funcionales para noche de fiesta */}
@@ -201,7 +201,7 @@ export default function ReservasPage() {
                 <select
                   value={time}
                   onChange={(e) => setTime(e.target.value)}
-                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"
+                  className={`${inputStyles} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]`}
                 >
                   <option value="9:30 PM" className="bg-[#120f20]">9:30 PM</option>
                   <option value="10:00 PM" className="bg-[#120f20]">10:00 PM</option>
@@ -213,8 +213,8 @@ export default function ReservasPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-full">
+              <div className="w-full min-w-0 max-w-full">
                 <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
                   <Users className="w-3.5 h-3.5 text-indigo-400" />
                   Personas
@@ -222,7 +222,7 @@ export default function ReservasPage() {
                 <select
                   value={guests}
                   onChange={(e) => setGuests(e.target.value)}
-                  className="w-full h-12 bg-white/[0.07] backdrop-blur-md border border-white/15 rounded-xl px-3.5 text-white text-sm focus:bg-white/[0.12] focus:border-indigo-400 focus:outline-none transition-all appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]"
+                  className={`${inputStyles} appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%23a1a1aa%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[position:right_1rem_center]`}
                 >
                   <option value="2" className="bg-[#120f20]">2 personas</option>
                   <option value="4" className="bg-[#120f20]">4 personas</option>
@@ -232,7 +232,7 @@ export default function ReservasPage() {
                 </select>
               </div>
 
-              <div>
+              <div className="w-full min-w-0 max-w-full">
                 <label className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-300 mb-2 ml-1">
                   <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
                   Zona Deseada

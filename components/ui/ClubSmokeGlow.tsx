@@ -10,7 +10,7 @@ import { memo } from "react";
 function ClubSmokeGlow() {
   return (
     <div
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden select-none" style={{ contain: "paint", clipPath: "inset(0)" }}
       aria-hidden="true"
     >
       <style>{`
