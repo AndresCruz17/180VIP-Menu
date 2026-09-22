@@ -17,6 +17,18 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
 
   const subtitle = [drink.brand, drink.volume].filter(Boolean).join(" · ");
   
+  const isCocktail = 
+    drink.categories?.slug === "cocteles" ||
+    drink.categories?.name?.toLowerCase().includes("coctel") ||
+    drink.categories?.name?.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("coctel") ||
+    drink.name.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("mojito") ||
+    drink.name.toLowerCase().includes("margarita") ||
+    drink.name.toLowerCase().includes("piña colada") ||
+    drink.name.toLowerCase().includes("gin tonic") ||
+    drink.name.toLowerCase().includes("cocktail");
+  
   const cardRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
   const [isPulsing, setIsPulsing] = useState(false);
@@ -94,18 +106,34 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
       {/* ===== ZONA DE IMAGEN - grande y protagonista ===== */}
       <div className="relative w-full h-52 flex items-center justify-center bg-gradient-to-b from-white/[0.04] to-transparent overflow-hidden rounded-t-[1.75rem]">
         {drink.image_url ? (
-          <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
-            <Image
-              src={drink.image_url}
-              alt={drink.name}
-              fill
-              sizes="(max-width: 768px) 45vw, 220px"
-              className="object-contain drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)] p-4"
-            />
-          </div>
+          isCocktail ? (
+            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
+              <Image
+                src={drink.image_url}
+                alt={drink.name}
+                fill
+                sizes="(max-width: 768px) 45vw, 220px"
+                className="object-cover"
+              />
+              {/* Degradado y viñeta suave que conecta la foto con la tarjeta oscura */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0f0c1a] via-black/25 to-transparent pointer-events-none" />
+            </div>
+          ) : (
+            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105 p-3 flex items-center justify-center">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden flex items-center justify-center">
+                <Image
+                  src={drink.image_url}
+                  alt={drink.name}
+                  fill
+                  sizes="(max-width: 768px) 45vw, 220px"
+                  className="object-contain rounded-2xl drop-shadow-[0_10px_30px_rgba(0,0,0,0.6)]"
+                />
+              </div>
+            </div>
+          )
         ) : (
           <div className="flex flex-col items-center justify-center gap-2 text-zinc-700 h-full">
-            <span className="text-5xl">🍹</span>
+            <span className="text-5xl">{isCocktail ? "🍸" : "🍾"}</span>
             <span className="text-[10px] font-bold uppercase tracking-wider">Sin imagen</span>
           </div>
         )}

@@ -44,6 +44,18 @@ export default async function DrinkDetailPage({ params }: PageProps) {
 
   const brandVolume = [drink.brand, drink.volume].filter(Boolean).join(" | ");
 
+  const isCocktail = 
+    drink.categories?.slug === "cocteles" ||
+    drink.categories?.name?.toLowerCase().includes("coctel") ||
+    drink.categories?.name?.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("coctel") ||
+    drink.name.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("mojito") ||
+    drink.name.toLowerCase().includes("margarita") ||
+    drink.name.toLowerCase().includes("piña colada") ||
+    drink.name.toLowerCase().includes("gin tonic") ||
+    drink.name.toLowerCase().includes("cocktail");
+
   return (
     <div className="flex-1 flex flex-col justify-between max-w-md mx-auto w-full px-4 sm:px-6 pt-3 pb-8">
       <div className="flex items-center justify-between pt-2 pb-6">
@@ -63,18 +75,32 @@ export default async function DrinkDetailPage({ params }: PageProps) {
       <div className="relative liquid-card rounded-[2.5rem] p-6 sm:p-8 overflow-hidden my-auto border border-white/10">
         <div className="absolute top-10 left-1/2 -translate-x-1/2 w-56 h-56 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative w-full h-64 flex items-center justify-center mb-6">
+        <div className="relative w-full flex items-center justify-center mb-6">
           {drink.image_url ? (
-            <div className="relative w-40 h-60 transition-transform duration-500 hover:scale-105">
-              <Image
-                src={drink.image_url}
-                alt={drink.name}
-                fill
-                sizes="(max-width: 768px) 180px, 240px"
-                className="object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]"
-                priority
-              />
-            </div>
+            isCocktail ? (
+              <div className="relative w-full h-64 sm:h-72 rounded-3xl overflow-hidden border border-white/15 shadow-2xl transition-transform duration-500 hover:scale-[1.02]">
+                <Image
+                  src={drink.image_url}
+                  alt={drink.name}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 450px"
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0c1a] via-transparent to-black/20 pointer-events-none" />
+              </div>
+            ) : (
+              <div className="relative w-44 h-64 flex items-center justify-center rounded-2xl overflow-hidden transition-transform duration-500 hover:scale-105">
+                <Image
+                  src={drink.image_url}
+                  alt={drink.name}
+                  fill
+                  sizes="(max-width: 768px) 180px, 240px"
+                  className="object-contain rounded-2xl drop-shadow-[0_15px_30px_rgba(0,0,0,0.7)]"
+                  priority
+                />
+              </div>
+            )
           ) : (
             <div className="w-32 h-48 rounded-2xl bg-gradient-to-b from-white/10 to-transparent flex items-center justify-center text-4xl">
               🍸

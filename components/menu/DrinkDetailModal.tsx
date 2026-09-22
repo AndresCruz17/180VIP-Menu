@@ -18,6 +18,18 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
 
   const brandVolume = [drink.brand, drink.volume].filter(Boolean).join(" | ");
 
+  const isCocktail = 
+    drink.categories?.slug === "cocteles" ||
+    drink.categories?.name?.toLowerCase().includes("coctel") ||
+    drink.categories?.name?.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("coctel") ||
+    drink.name.toLowerCase().includes("cóctel") ||
+    drink.name.toLowerCase().includes("mojito") ||
+    drink.name.toLowerCase().includes("margarita") ||
+    drink.name.toLowerCase().includes("piña colada") ||
+    drink.name.toLowerCase().includes("gin tonic") ||
+    drink.name.toLowerCase().includes("cocktail");
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
       <div 
@@ -34,20 +46,33 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
           <X className="w-5 h-5" />
         </button>
 
-        <div className="relative w-full h-56 flex items-center justify-center mb-4">
+        <div className="relative w-full flex items-center justify-center mb-5">
           {drink.image_url ? (
-            <div className="relative w-36 h-52 transition-transform duration-300 hover:scale-105">
-              <Image
-                src={drink.image_url}
-                alt={drink.name}
-                fill
-                sizes="(max-width: 768px) 150px, 200px"
-                className="object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.6)]"
-              />
-            </div>
+            isCocktail ? (
+              <div className="relative w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-white/15 shadow-2xl transition-transform duration-300">
+                <Image
+                  src={drink.image_url}
+                  alt={drink.name}
+                  fill
+                  sizes="(max-width: 768px) 90vw, 420px"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0c1a] via-transparent to-black/20 pointer-events-none" />
+              </div>
+            ) : (
+              <div className="relative w-40 h-56 flex items-center justify-center rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105">
+                <Image
+                  src={drink.image_url}
+                  alt={drink.name}
+                  fill
+                  sizes="(max-width: 768px) 160px, 220px"
+                  className="object-contain rounded-2xl drop-shadow-[0_10px_25px_rgba(0,0,0,0.7)]"
+                />
+              </div>
+            )
           ) : (
             <div className="w-28 h-44 rounded-2xl bg-gradient-to-b from-amber-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center text-zinc-400">
-              <span className="text-3xl">🍾</span>
+              <span className="text-3xl">{isCocktail ? "🍸" : "🍾"}</span>
             </div>
           )}
         </div>
