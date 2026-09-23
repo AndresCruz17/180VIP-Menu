@@ -48,28 +48,25 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
 
         <div className="relative w-full flex items-center justify-center mb-5">
           {drink.image_url ? (
-            isCocktail ? (
-              <div className="relative w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-white/15 shadow-2xl transition-transform duration-300">
+            <div className="relative w-full h-64 sm:h-72 rounded-3xl overflow-hidden border border-white/10 bg-[#161224] shadow-2xl flex items-center justify-center p-3">
+              {/* Fondo ambiental difuminado con los colores de la imagen */}
+              <div
+                className="absolute inset-0 bg-cover bg-center opacity-35 blur-2xl scale-125 pointer-events-none"
+                style={{ backgroundImage: `url(${drink.image_url})` }}
+              />
+              <div className="absolute inset-0 bg-black/40 pointer-events-none" />
+
+              {/* Imagen 100% COMPLETA sin recortes, con bordes redondeados y sombra */}
+              <div className="relative w-full h-full flex items-center justify-center z-10">
                 <Image
                   src={drink.image_url}
                   alt={drink.name}
                   fill
                   sizes="(max-width: 768px) 90vw, 420px"
-                  className="object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0f0c1a] via-transparent to-black/20 pointer-events-none" />
-              </div>
-            ) : (
-              <div className="relative w-40 h-56 flex items-center justify-center rounded-2xl overflow-hidden transition-transform duration-300 hover:scale-105">
-                <Image
-                  src={drink.image_url}
-                  alt={drink.name}
-                  fill
-                  sizes="(max-width: 768px) 160px, 220px"
-                  className="object-contain rounded-2xl drop-shadow-[0_10px_25px_rgba(0,0,0,0.7)]"
+                  className="object-contain rounded-2xl drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)]"
                 />
               </div>
-            )
+            </div>
           ) : (
             <div className="w-28 h-44 rounded-2xl bg-gradient-to-b from-amber-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center text-zinc-400">
               <span className="text-3xl">{isCocktail ? "🍸" : "🍾"}</span>
