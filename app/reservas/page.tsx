@@ -17,17 +17,24 @@ export default function ReservasPage() {
   const [zone, setZone] = useState<ReservationDetails["zone"]>("VIP Palco");
   const [specialRequests, setSpecialRequests] = useState("");
 
-  const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
+  // Función para formatear fecha local (evita desfases por conversión UTC a medianoche)
+  const formatLocalDate = (d: Date): string => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
 
-  // Helpers para selección rápida de fecha
+  const todayStr = useMemo(() => formatLocalDate(new Date()), []);
+
+  // Helpers para selección rápida de fecha sin desfase de zona horaria
   const getUpcomingDay = (targetDay: number) => {
     const now = new Date();
-    const currentDay = now.getDay();
+    const currentDay = now.getDay(); // 0: Domingo, 5: Viernes, 6: Sábado
     let diff = targetDay - currentDay;
-    if (diff <= 0) diff += 7;
-    const targetDate = new Date(now);
-    targetDate.setDate(now.getDate() + diff);
-    return targetDate.toISOString().split("T")[0];
+    if (diff < 0) diff += 7;
+    const targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + diff);
+    return formatLocalDate(targetDate);
   };
 
   const upcomingFri = useMemo(() => getUpcomingDay(5), []);
@@ -35,11 +42,11 @@ export default function ReservasPage() {
 
   const formattedDateLabel = useMemo(() => {
     if (!date || !date.includes("-")) return null;
-    const [year, month, day] = date.split("-");
-    const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    const [year, month, day] = date.split("-").map(Number);
+    const d = new Date(year, month - 1, day);
     const days = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const months = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
-    return `${days[d.getDay()]}, ${parseInt(day)} de ${months[d.getMonth()]}`;
+    return `${days[d.getDay()]}, ${day} de ${months[d.getMonth()]}`;
   }, [date]);
 
   const handleSubmit = (e: React.FormEvent) => {

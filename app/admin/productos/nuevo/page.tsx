@@ -173,14 +173,10 @@ export default function NewDrinkPage() {
           <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleFileChange} className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-xs text-zinc-400 file:mr-3 file:rounded-xl file:border-0 file:bg-[#ff1b7a]/20 file:px-3 file:py-2 file:text-[#ff1b7a]" />
         </div>
 
-        <div className="flex flex-col gap-4 pt-2 sm:flex-row">
+        <div className="pt-2">
           <label className="flex cursor-pointer items-center gap-2.5">
             <input type="checkbox" checked={isAvailable} onChange={(event) => setIsAvailable(event.target.checked)} className="h-4 w-4 accent-[#39ff14]" />
             <span className="text-xs font-bold text-zinc-200">Disponible para la venta</span>
-          </label>
-          <label className="flex cursor-pointer items-center gap-2.5">
-            <input type="checkbox" checked={isFeatured} onChange={(event) => setIsFeatured(event.target.checked)} className="h-4 w-4 accent-[#ff1b7a]" />
-            <span className="text-xs font-bold text-zinc-200">Destacar en Carta Principal</span>
           </label>
         </div>
 
