@@ -7,6 +7,7 @@ import NeonBorderBeam from "@/components/ui/NeonBorderBeam";
 import EventDetailModal, { type EventItem } from "@/components/events/EventDetailModal";
 import { ChevronLeft, Clock, Send, Sparkles, Maximize2, WifiOff } from "lucide-react";
 import { getWhatsAppEventUrl } from "@/lib/config";
+import { createPublicClient } from "@/lib/supabase/public";
 
 const MONTH_LABELS: Record<string, string> = {
   "01": "ENE","02": "FEB","03": "MAR","04": "ABR",
@@ -47,6 +48,47 @@ export default function EventosClient({ initialEvents }: EventosClientProps) {
   const [events, setEvents] = useState<EventItem[]>(initialEvents);
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Sincronización en tiempo real (Supabase Realtime) de eventos
+  useEffect(() => {
+    const supabase = createPublicClient();
+
+    const fetchLatestEvents = async () => {
+      const { data } = await supabase
+        .from("events")
+        .select("id, title, tag, event_date, time, artist, description, image_url")
+        .eq("is_active", true)
+        .order("event_date", { ascending: true });
+      if (data) setEvents(data as EventItem[]);
+    };
+
+    const channel = supabase
+      .channel("eventos-realtime-channel")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "events" },
+        () => {
+          fetchLatestEvents();
+        }
+      )
+      .subscribe();
+
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        fetchLatestEvents();
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleVisibility);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleVisibility);
+    };
+  }, []);
+
 
   // Mantener sincronizado el estado si initialEvents cambia en el servidor
   useEffect(() => {

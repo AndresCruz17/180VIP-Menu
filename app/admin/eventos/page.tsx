@@ -137,6 +137,7 @@ export default function AdminEventosPage() {
       alert("Error al cambiar estado: " + error.message);
       return;
     }
+    fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/eventos' }) }).catch(() => {});
     await fetchEvents();
   };
 
@@ -168,6 +169,7 @@ export default function AdminEventosPage() {
         if (error) throw error;
       }
       closeSheet();
+      fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/eventos' }) }).catch(() => {});
       await fetchEvents();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Error inesperado.";

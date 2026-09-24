@@ -1,4 +1,5 @@
-﻿import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getAuthAdminUser } from '@/lib/supabase/auth';
 import { createClient } from '@/lib/supabase/server';
 
@@ -33,6 +34,12 @@ export async function POST(request: NextRequest) {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
+
+    // Revalidación instantánea bajo demanda en el Edge de Vercel (0 segundos de espera)
+    revalidatePath('/menu');
+    revalidatePath('/menu/[slug]', 'page');
+    revalidatePath('/');
+    revalidatePath('/admin/dashboard');
 
     return NextResponse.json({ success: true, drink: data });
   } catch (err: unknown) {

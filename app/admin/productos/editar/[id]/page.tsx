@@ -138,6 +138,7 @@ export default function EditDrinkPage({ params }: PageProps) {
         await deleteStorageFiles(supabase, [initialImageUrl], "drinks");
       }
 
+      await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/menu' }) }).catch(() => {});
       router.push("/admin/dashboard");
       router.refresh();
     } catch (err: unknown) {

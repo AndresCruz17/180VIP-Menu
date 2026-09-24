@@ -7,7 +7,8 @@ import AmbientParticles from "@/components/ui/AmbientParticles";
 import { ChevronLeft, Search, X, Sparkles, WifiOff, ShieldAlert } from "lucide-react";
 import DrinkCard from "@/components/menu/DrinkCard";
 import DrinkDetailModal from "@/components/menu/DrinkDetailModal";
-import type { Category, Drink } from "@/lib/supabase/queries";
+import { getAllActiveDrinks, type Category, type Drink } from "@/lib/supabase/queries";
+import { createPublicClient } from "@/lib/supabase/public";
 
 interface MenuClientProps {
   initialCategories: Category[];
@@ -26,6 +27,70 @@ export default function MenuClient({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeDrink, setActiveDrink] = useState<Drink | null>(null);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+
+  // Sincronización en tiempo real (Supabase Realtime) y actualización silenciosa
+  useEffect(() => {
+    const supabase = createPublicClient();
+
+    // 1. Canal Realtime vía WebSocket para cambios instantáneos (0 segundos de espera)
+    const channel = supabase
+      .channel("menu-realtime-drinks")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "drinks" },
+        (payload) => {
+          const updated = payload.new as Partial<Drink>;
+          setDrinks((prev) =>
+            prev.map((d) => (d.id === updated.id ? { ...d, ...updated } : d))
+          );
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "drinks" },
+        async () => {
+          const latest = await getAllActiveDrinks();
+          if (latest && latest.length > 0) setDrinks(latest);
+        }
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "drinks" },
+        (payload) => {
+          setDrinks((prev) => prev.filter((d) => d.id !== payload.old.id));
+        }
+      )
+      .subscribe();
+
+    // 2. Refresco inmediato al volver a la pantalla / desbloquear el móvil
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        getAllActiveDrinks().then((latest) => {
+          if (latest && latest.length > 0) setDrinks(latest);
+        });
+      }
+    };
+
+    window.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("focus", handleVisibility);
+
+    // 3. Polling de respaldo cada 12 segundos
+    const pollInterval = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        getAllActiveDrinks().then((latest) => {
+          if (latest && latest.length > 0) setDrinks(latest);
+        });
+      }
+    }, 12000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      window.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("focus", handleVisibility);
+      clearInterval(pollInterval);
+    };
+  }, []);
+
 
   // Stale-While-Revalidate: guarda copia local en el dispositivo del cliente
   useEffect(() => {

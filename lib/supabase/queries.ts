@@ -50,7 +50,6 @@ export async function getAllActiveDrinks(): Promise<Drink[]> {
     const { data, error } = await supabase
       .from("drinks")
       .select("id, name, slug, category_id, price, brand, volume, description, image_url, is_available, is_featured, created_at, categories(id, name, slug)")
-      .eq("is_available", true)
       .order("created_at", { ascending: false });
 
     if (error) return [];

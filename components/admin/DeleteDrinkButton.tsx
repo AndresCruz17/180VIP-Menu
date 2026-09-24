@@ -34,6 +34,7 @@ export default function DeleteDrinkButton({ id, name, imageUrl }: DeleteDrinkPro
         await deleteStorageFiles(supabase, [imageUrl], "drinks");
       }
 
+      await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: '/menu' }) }).catch(() => {});
       router.refresh();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Ocurrió un error al eliminar.";
