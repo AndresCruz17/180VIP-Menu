@@ -48,10 +48,38 @@ export default function EventosClient({ initialEvents }: EventosClientProps) {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null);
   const [isOffline, setIsOffline] = useState<boolean>(false);
 
-  // Stale-While-Revalidate: guarda copia local de eventos
+  // Mantener sincronizado el estado si initialEvents cambia en el servidor
   useEffect(() => {
-    try {
-      if (initialEvents && initialEvents.length > 0) {
+    setEvents(initialEvents);
+  }, [initialEvents]);
+
+  // Manejo de conexión y caché offline
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onOnline = () => {
+      setIsOffline(false);
+    };
+
+    const onOffline = () => {
+      setIsOffline(true);
+      // Recuperar de la memoria local SOLO si realmente estamos sin internet
+      try {
+        const cached = localStorage.getItem("180vip_events_cache");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed.events) setEvents(parsed.events);
+        }
+      } catch {}
+    };
+
+    setIsOffline(!navigator.onLine);
+    window.addEventListener("online", onOnline);
+    window.addEventListener("offline", onOffline);
+
+    // Guardar en caché la lista oficial del servidor para modo sin conexión
+    if (navigator.onLine && initialEvents) {
+      try {
         localStorage.setItem(
           "180vip_events_cache",
           JSON.stringify({
@@ -59,33 +87,13 @@ export default function EventosClient({ initialEvents }: EventosClientProps) {
             savedAt: Date.now(),
           })
         );
-      }
-    } catch {}
-
-    if (typeof window !== "undefined") {
-      setIsOffline(!navigator.onLine);
-      const onOnline = () => setIsOffline(false);
-      const onOffline = () => setIsOffline(true);
-      window.addEventListener("online", onOnline);
-      window.addEventListener("offline", onOffline);
-      return () => {
-        window.removeEventListener("online", onOnline);
-        window.removeEventListener("offline", onOffline);
-      };
-    }
-  }, [initialEvents]);
-
-  // Rescate de eventos si no hay conexion
-  useEffect(() => {
-    if ((!initialEvents || initialEvents.length === 0) && typeof window !== "undefined") {
-      try {
-        const cached = localStorage.getItem("180vip_events_cache");
-        if (cached) {
-          const parsed = JSON.parse(cached);
-          if (parsed.events?.length > 0) setEvents(parsed.events);
-        }
       } catch {}
     }
+
+    return () => {
+      window.removeEventListener("online", onOnline);
+      window.removeEventListener("offline", onOffline);
+    };
   }, [initialEvents]);
 
   return (

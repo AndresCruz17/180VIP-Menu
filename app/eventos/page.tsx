@@ -7,13 +7,12 @@ export const revalidate = 60;
 
 export default async function EventosPage() {
   const supabase = createPublicClient();
-  const today = new Date().toISOString().split("T")[0];
 
+  // Traer todos los eventos marcados como activos por el administrador
   const { data } = await supabase
     .from("events")
     .select("id, title, tag, event_date, time, artist, description, image_url")
     .eq("is_active", true)
-    .gte("event_date", today)
     .order("event_date", { ascending: true });
 
   const events = (data as EventItem[]) || [];
