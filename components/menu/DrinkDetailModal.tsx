@@ -9,14 +9,17 @@ interface DrinkDetailModalProps {
   onClose: () => void;
 }
 
-export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalProps) {
+export default function DrinkDetailModal({
+  drink,
+  onClose,
+}: DrinkDetailModalProps) {
   if (!drink) return null;
 
   const formattedPrice = drink.price
     ? `$${Number(drink.price).toLocaleString("es-CO")}`
     : "Consultar";
 
-  const brandVolume = [drink.brand, drink.volume].filter(Boolean).join(" | ");
+  const brandVolume = [drink.brand, drink.volume].filter(Boolean).join(" · ");
 
   const isCocktail = 
     drink.categories?.slug === "cocteles" ||
@@ -41,7 +44,7 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
         <button
           onClick={onClose}
           aria-label="Cerrar"
-          className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-colors z-10"
+          className="absolute top-5 right-5 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
@@ -57,7 +60,9 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
               <div className="absolute inset-0 bg-black/40 pointer-events-none" />
 
               {/* Imagen 100% COMPLETA sin recortes, con bordes redondeados y sombra */}
-              <div className="relative w-full h-full flex items-center justify-center z-10">
+              <div className={`relative w-full h-full flex items-center justify-center z-10 ${
+                !drink.is_available ? "grayscale-[30%] contrast-[0.95]" : ""
+              }`}>
                 <Image
                   src={drink.image_url}
                   alt={drink.name}
@@ -66,6 +71,14 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
                   className="object-contain rounded-2xl drop-shadow-[0_12px_28px_rgba(0,0,0,0.85)]"
                 />
               </div>
+
+              {/* Badge superior si está agotado */}
+              {!drink.is_available && (
+                <div className="absolute top-4 left-4 z-20 flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-600/95 text-white font-black text-[11px] uppercase tracking-wider shadow-[0_0_15px_rgba(225,29,72,0.8)] border border-rose-400/40 backdrop-blur-md">
+                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                  <span>Agotado</span>
+                </div>
+              )}
             </div>
           ) : (
             <div className="w-28 h-44 rounded-2xl bg-gradient-to-b from-amber-500/20 to-pink-500/20 border border-white/10 flex items-center justify-center text-zinc-400">
@@ -74,7 +87,7 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
           )}
         </div>
 
-        <div className="text-center mb-5">
+        <div className="text-center mb-4">
           <h3 className="font-[var(--font-outfit)] text-xl sm:text-2xl font-black text-white uppercase tracking-wider leading-tight">
             {drink.name}
           </h3>
@@ -85,23 +98,36 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
             </p>
           )}
 
-          <div className="mt-2 flex justify-center">
+          <div className="mt-2.5 flex justify-center">
             {drink.is_available ? (
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 Disponible
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400">
-                <AlertCircle className="w-3.5 h-3.5" />
-                Agotado
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-black tracking-wider uppercase bg-rose-500/15 border border-rose-500/40 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.3)]">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                Agotado por hoy
               </span>
             )}
           </div>
+
+          {/* Mensaje informativo para clientes cuando se agota */}
+          {!drink.is_available && (
+            <div className="mt-3 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2.5 text-left">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-rose-300">Producto agotado por esta noche</p>
+                <p className="text-[11px] text-zinc-300 mt-0.5 leading-relaxed font-light">
+                  Este licor o cóctel no se encuentra disponible temporalmente. Puedes consultar con el bartender o tu mesero por opciones de sabor y gama similar.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {drink.description && (
-          <div className="mb-6">
+          <div className="mb-5">
             <h4 className="text-[11px] font-black tracking-widest text-zinc-400 uppercase mb-1.5">
               Sobre este licor
             </h4>
@@ -111,20 +137,30 @@ export default function DrinkDetailModal({ drink, onClose }: DrinkDetailModalPro
           </div>
         )}
 
-        {/* Informative only - no add button */}
+        {/* Zona inferior de precio y estado */}
         <div className="pt-4 border-t border-white/10 flex items-center justify-between">
           <div>
             <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase block">
               Precio
             </span>
-            <span className="font-[var(--font-outfit)] text-2xl font-black text-[#39ff14] drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]">
+            <span className={`font-[var(--font-outfit)] text-2xl font-black ${
+              drink.is_available
+                ? "text-[#39ff14] drop-shadow-[0_0_10px_rgba(57,255,20,0.5)]"
+                : "text-zinc-400"
+            }`}>
               {formattedPrice}
             </span>
           </div>
 
-          <span className="text-[11px] text-zinc-400 font-medium">
-            IVA Incluido
-          </span>
+          {drink.is_available ? (
+            <span className="text-[11px] text-zinc-400 font-medium">
+              IVA Incluido
+            </span>
+          ) : (
+            <span className="text-[11px] font-bold text-rose-400 bg-rose-500/10 border border-rose-500/30 px-2.5 py-1 rounded-full uppercase tracking-wider">
+              No Disponible
+            </span>
+          )}
         </div>
       </div>
     </div>

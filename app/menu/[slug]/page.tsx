@@ -122,12 +122,24 @@ export default async function DrinkDetailPage({ params }: PageProps) {
                 Disponible
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase bg-rose-500/10 border border-rose-500/30 text-rose-400">
-                <AlertCircle className="w-3.5 h-3.5" />
-                Agotado
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black tracking-wider uppercase bg-rose-500/15 border border-rose-500/40 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.3)]">
+                <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+                Agotado por hoy
               </span>
             )}
           </div>
+
+          {!drink.is_available && (
+            <div className="mt-4 p-3 rounded-2xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2.5 text-left max-w-sm mx-auto">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold text-rose-300">Producto agotado por esta noche</p>
+                <p className="text-[11px] text-zinc-300 mt-0.5 leading-relaxed font-light">
+                  Este licor o cóctel no se encuentra disponible temporalmente. Puedes consultar con el personal en barra por opciones similares.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {drink.description && (
@@ -146,7 +158,11 @@ export default async function DrinkDetailPage({ params }: PageProps) {
             <span className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase block">
               Precio Oficial
             </span>
-            <span className="font-[var(--font-outfit)] text-2xl sm:text-3xl font-black text-[#39ff14] drop-shadow-[0_0_12px_rgba(57,255,20,0.5)]">
+            <span className={`font-[var(--font-outfit)] text-2xl sm:text-3xl font-black ${
+              drink.is_available
+                ? "text-[#39ff14] drop-shadow-[0_0_12px_rgba(57,255,20,0.5)]"
+                : "text-zinc-400"
+            }`}>
               {formattedPrice}
             </span>
           </div>

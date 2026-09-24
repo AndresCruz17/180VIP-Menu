@@ -55,9 +55,9 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
     return () => observer.disconnect();
   }, []);
 
-  // Brillo aleatorio (efecto ambiente)
+  // Brillo aleatorio (efecto ambiente, solo para bebidas disponibles)
   useEffect(() => {
-    if (!isVisible) return;
+    if (!isVisible || !drink.is_available) return;
     
     // Aleatorio entre 5 y 15 segundos
     const randomDelay = Math.random() * 10000 + 5000;
@@ -71,7 +71,7 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
     }, randomDelay);
 
     return () => clearInterval(interval);
-  }, [isVisible]);
+  }, [isVisible, drink.is_available]);
 
   return (
     <div
@@ -86,28 +86,37 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
         }
       }}
       className={`liquid-card rounded-[1.75rem] flex flex-col cursor-pointer group relative overflow-hidden transition-all duration-300 select-none 
-        ${!drink.is_available ? "opacity-60" : ""}
+        ${!drink.is_available ? "opacity-65 hover:opacity-85 border-rose-500/25 shadow-none" : ""}
         ${isVisible ? "card-visible" : "card-hidden"}
-        ${isPulsing ? "neon-pulse" : ""}
+        ${isPulsing && drink.is_available ? "neon-pulse" : ""}
       `}
     >
-      <NeonBorderBeam
-        variant={drink.is_featured ? "gold" : "magenta"}
-        borderWidth={1.4}
-        duration={5.0 + ((typeof drink.id === 'number' ? drink.id : 1) % 4) * 0.8}
-        delay={((typeof drink.id === 'number' ? drink.id : 1) % 5) * 1.2}
-        direction={(typeof drink.id === 'number' ? drink.id : 1) % 2 === 0 ? "cw" : "ccw"}
-        pulsing={true}
-      />
+      {/* Marco de haz de neón animado (solo para botellas activas) */}
+      {drink.is_available && (
+        <NeonBorderBeam
+          variant={drink.is_featured ? "gold" : "magenta"}
+          borderWidth={1.4}
+          duration={5.0 + ((typeof drink.id === 'number' ? drink.id : 1) % 4) * 0.8}
+          delay={((typeof drink.id === 'number' ? drink.id : 1) % 5) * 1.2}
+          direction={(typeof drink.id === 'number' ? drink.id : 1) % 2 === 0 ? "cw" : "ccw"}
+          pulsing={true}
+        />
+      )}
 
-      {/* Glow decorativo */}
-      <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ff1b7a]/10 rounded-full blur-2xl group-hover:bg-[#ff1b7a]/20 transition-all duration-500 pointer-events-none z-0" />
+      {/* Glow decorativo de fondo */}
+      <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl transition-all duration-500 pointer-events-none z-0 ${
+        drink.is_available
+          ? "bg-[#ff1b7a]/10 group-hover:bg-[#ff1b7a]/20"
+          : "bg-rose-500/5"
+      }`} />
 
       {/* ===== ZONA DE IMAGEN - grande y protagonista ===== */}
       <div className="relative w-full h-52 flex items-center justify-center bg-gradient-to-b from-white/[0.04] to-transparent overflow-hidden rounded-t-[1.75rem]">
         {drink.image_url ? (
           isCocktail ? (
-            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105">
+            <div className={`relative w-full h-full transition-transform duration-500 group-hover:scale-105 ${
+              !drink.is_available ? "grayscale-[35%] contrast-[0.95]" : ""
+            }`}>
               <Image
                 src={drink.image_url}
                 alt={drink.name}
@@ -119,7 +128,9 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
               <div className="absolute inset-0 bg-gradient-to-t from-[#0f0c1a] via-black/25 to-transparent pointer-events-none" />
             </div>
           ) : (
-            <div className="relative w-full h-full transition-transform duration-500 group-hover:scale-105 p-3 flex items-center justify-center">
+            <div className={`relative w-full h-full transition-transform duration-500 group-hover:scale-105 p-3 flex items-center justify-center ${
+              !drink.is_available ? "grayscale-[35%] contrast-[0.95]" : ""
+            }`}>
               <div className="relative w-full h-full rounded-2xl overflow-hidden flex items-center justify-center">
                 <Image
                   src={drink.image_url}
@@ -138,14 +149,15 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
           </div>
         )}
 
-        {/* Badge agotado */}
+        {/* Badge AGOTADO con punto pulsante de atención */}
         {!drink.is_available && (
-          <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-rose-500/90 text-white tracking-wider shadow-lg z-10">
-            Agotado
-          </span>
+          <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-rose-600/95 text-white font-black text-[10px] uppercase tracking-wider shadow-[0_0_14px_rgba(225,29,72,0.7)] border border-rose-400/40 z-20 backdrop-blur-md">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+            <span>Agotado</span>
+          </div>
         )}
 
-        {/* Badge destacado */}
+        {/* Badge destacado (solo si disponible) */}
         {drink.is_featured && drink.is_available && (
           <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-[#ff1b7a]/90 text-white tracking-wider shadow-lg z-10">
             ⭐ Top
@@ -158,7 +170,9 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
 
       {/* ===== ZONA DE INFO ===== */}
       <div className="px-4 pb-4 pt-2 flex flex-col gap-1 relative z-10">
-        <h3 className="font-[var(--font-outfit)] text-sm font-extrabold text-white leading-snug line-clamp-2 group-hover:text-[#ff1b7a] transition-colors">
+        <h3 className={`font-[var(--font-outfit)] text-sm font-extrabold leading-snug line-clamp-2 transition-colors ${
+          drink.is_available ? "text-white group-hover:text-[#ff1b7a]" : "text-zinc-300"
+        }`}>
           {drink.name}
         </h3>
 
@@ -167,11 +181,19 @@ export default function DrinkCard({ drink, onClick }: DrinkCardProps) {
         )}
 
         <div className="mt-1.5 flex items-center justify-between">
-          <span className="font-[var(--font-outfit)] text-base font-black text-[#39ff14] drop-shadow-[0_0_8px_rgba(57,255,20,0.35)]">
+          <span className={`font-[var(--font-outfit)] text-base font-black ${
+            drink.is_available
+              ? "text-[#39ff14] drop-shadow-[0_0_8px_rgba(57,255,20,0.35)]"
+              : "text-zinc-400"
+          }`}>
             {formattedPrice}
           </span>
-          <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider group-hover:text-zinc-300 transition-colors">
-            Ver →
+          <span className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${
+            drink.is_available
+              ? "text-zinc-500 group-hover:text-zinc-300"
+              : "text-rose-400/90 font-black"
+          }`}>
+            {drink.is_available ? "Ver →" : "Agotado"}
           </span>
         </div>
       </div>

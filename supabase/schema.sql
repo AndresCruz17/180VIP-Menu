@@ -68,7 +68,7 @@ create policy "categories_admin_all"
 -- ==============================================================================
 create policy "drinks_public_read"
   on public.drinks for select to public
-  using (is_available = true or exists (select 1 from public.admin_users where user_id = auth.uid()));
+  using (true);
 
 create policy "drinks_admin_all"
   on public.drinks for all to authenticated
