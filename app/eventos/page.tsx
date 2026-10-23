@@ -2,20 +2,27 @@ import { createPublicClient } from "@/lib/supabase/public";
 import EventosClient from "./EventosClient";
 import type { EventItem } from "@/components/events/EventDetailModal";
 
-// Incremental Static Regeneration: entrega instantanea desde cache Edge
+// Incremental Static Regeneration: entrega instantánea desde caché Edge
 export const revalidate = 60;
 
 export default async function EventosPage() {
-  const supabase = createPublicClient();
+  let events: EventItem[] = [];
 
-  // Traer todos los eventos marcados como activos por el administrador
-  const { data } = await supabase
-    .from("events")
-    .select("id, title, tag, event_date, time, artist, description, image_url")
-    .eq("is_active", true)
-    .order("event_date", { ascending: true });
+  try {
+    const supabase = createPublicClient();
+    const { data, error } = await supabase
+      .from("events")
+      .select("id, title, tag, event_date, time, artist, description, image_url")
+      .eq("is_active", true)
+      .order("event_date", { ascending: true });
 
-  const events = (data as EventItem[]) || [];
+    if (!error && data) {
+      events = data as EventItem[];
+    }
+  } catch {
+    // Si la base de datos está pausada o en mantenimiento, no bloquea al cliente
+    events = [];
+  }
 
   return <EventosClient initialEvents={events} />;
 }

@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import AmbientParticles from "@/components/ui/AmbientParticles";
-import { ChevronLeft, Search, X, Sparkles, WifiOff, ShieldAlert } from "lucide-react";
+import { ChevronLeft, Search, X, Sparkles, WifiOff, ShieldAlert, LayoutGrid, StretchHorizontal } from "lucide-react";
 import DrinkCard from "@/components/menu/DrinkCard";
 import DrinkDetailModal from "@/components/menu/DrinkDetailModal";
 import { getAllActiveDrinks, type Category, type Drink } from "@/lib/supabase/queries";
@@ -27,6 +27,7 @@ export default function MenuClient({
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeDrink, setActiveDrink] = useState<Drink | null>(null);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+  const [viewMode, setViewMode] = useState<"grid" | "featured">("grid");
 
   // Sincronización en tiempo real (Supabase Realtime) y actualización silenciosa
   useEffect(() => {
@@ -270,13 +271,51 @@ export default function MenuClient({
       </header>
 
       {/* ===== GRID DE BEBIDAS ===== */}
-      <main className="max-w-md sm:max-w-xl mx-auto w-full px-4 pt-4 pb-12 flex-1">
+      <main className="max-w-md sm:max-w-xl mx-auto w-full px-4 pt-3 pb-12 flex-1">
+        {/* Barra superior de conteo y selector de tamaño/vista de la carta */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <span className="text-[11px] font-bold text-zinc-400">
+            {filteredDrinks.length} {filteredDrinks.length === 1 ? "licor" : "licores"}
+          </span>
+          <div className="flex items-center gap-1 p-0.5 rounded-xl bg-white/[0.06] border border-white/10 backdrop-blur-md">
+            <button
+              onClick={() => setViewMode("grid")}
+              aria-label="Vista cuadrícula 2 columnas"
+              title="Vista cuadrícula (2 columnas)"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 font-bold ${
+                viewMode === "grid"
+                  ? "bg-[#ff1b7a] text-white shadow-[0_0_10px_rgba(255,27,122,0.4)]"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <LayoutGrid className="w-3.5 h-3.5" />
+              <span className="text-[10px]">Cuadrícula</span>
+            </button>
+            <button
+              onClick={() => setViewMode("featured")}
+              aria-label="Vista grande 1 columna"
+              title="Vista grande (1 columna completa)"
+              className={`px-2.5 py-1 rounded-lg text-xs transition-all flex items-center gap-1.5 font-bold ${
+                viewMode === "featured"
+                  ? "bg-[#ff1b7a] text-white shadow-[0_0_10px_rgba(255,27,122,0.4)]"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <StretchHorizontal className="w-3.5 h-3.5" />
+              <span className="text-[10px]">Tarjetas Grandes</span>
+            </button>
+          </div>
+        </div>
+
         {filteredDrinks.length > 0 ? (
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className={`grid gap-3.5 items-stretch ${
+            viewMode === "grid" ? "grid-cols-2" : "grid-cols-1"
+          }`}>
             {filteredDrinks.map((drink) => (
               <DrinkCard
                 key={drink.id}
                 drink={drink}
+                viewMode={viewMode}
                 onClick={() => setActiveDrink(drink)}
               />
             ))}

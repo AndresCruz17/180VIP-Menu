@@ -3,9 +3,9 @@ import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 let publicClient: ReturnType<typeof createSupabaseClient> | null = null;
 
 /**
- * Cliente publico de Supabase libre de cookies y sesiones de navegacion.
- * Permite a Next.js aplicar generacion estatica (SSG) e Incremental Static
- * Regeneration (ISR) para servir paginas del menu y eventos en 10-30ms.
+ * Cliente público de Supabase optimizado para Next.js con fail-fast timeout (3.5s).
+ * Si la base de datos está pausada o en mantenimiento, nunca bloquea la página
+ * durante 60-120 segundos, permitiendo responder de inmediato con la memoria en caché.
  */
 export function createPublicClient() {
   if (publicClient) return publicClient;
@@ -20,6 +20,15 @@ export function createPublicClient() {
       persistSession: false,
       autoRefreshToken: false,
       detectSessionInUrl: false,
+    },
+    global: {
+      fetch: (url, options) => {
+        // Timeout de 3.5 segundos para no dejar congelada la navegación móvil
+        return fetch(url, {
+          ...options,
+          signal: options?.signal || AbortSignal.timeout(3500),
+        });
+      },
     },
   });
 
